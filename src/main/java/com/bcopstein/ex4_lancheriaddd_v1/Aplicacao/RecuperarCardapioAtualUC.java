@@ -10,9 +10,7 @@ public class RecuperarCardapioAtualUC {
     private RecuperarCardapioUC recuperarCardapioUC;
 
     @Autowired
-    public RecuperarCardapioAtualUC(RecuperarCardapioUC recuperarCardapioUC) {
-        this.recuperarCardapioUC = recuperarCardapioUC;
-    }
+    private RecuperarCardapioUC recuperarCardapioUC;
 
     public CardapioResponse run() {
         long idCardapioAtual = 1; // Supondo ID do cardápio atual seja 1
