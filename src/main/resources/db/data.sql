@@ -1,68 +1,91 @@
--- Inserção dos clientes
-INSERT INTO clientes (cpf, nome, celular, endereco, email) VALUES ('9001', 'Huguinho Pato', '51985744566', 'Rua das Flores, 100', 'huguinho.pato@email.com');
-INSERT INTO clientes (cpf, nome, celular, endereco, email) VALUES ('9002', 'Luizinho Pato', '5199172079', 'Av. Central, 200', 'zezinho.pato@email.com');
+-- ============================================================
+--  Dados Iniciais - Tele Pizza PUCRS
+-- ============================================================
 
--- Inserção dos ingredientes
-INSERT INTO ingredientes (id, descricao) VALUES (1, 'Disco de pizza');
-INSERT INTO ingredientes (id, descricao) VALUES (2, 'Porcao de tomate');
-INSERT INTO ingredientes (id, descricao) VALUES (3, 'Porcao de mussarela');
-INSERT INTO ingredientes (id, descricao) VALUES (4, 'Porcao de presunto');
-INSERT INTO ingredientes (id, descricao) VALUES (5, 'Porcao de calabresa');
-INSERT INTO ingredientes (id, descricao) VALUES (6, 'Molho de tomate (200ml)');
-INSERT INTO ingredientes (id, descricao) VALUES (7, 'Porcao de azeitona');
-INSERT INTO ingredientes (id, descricao) VALUES (8, 'Porcao de oregano');
-INSERT INTO ingredientes (id, descricao) VALUES (9, 'Porcao de cebola');
+-- Cardápio corrente (id=1, corrente=true)
+INSERT INTO cardapios (id, descricao, corrente) VALUES
+    (1, 'Cardápio Outubro 2025', TRUE),
+    (2, 'Cardápio Promoção Verão', FALSE);
 
--- Inserção dos itens de estoque
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (1, 30, 1);
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (2, 30, 2);
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (3, 30, 3);
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (4, 30, 4);
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (5, 30, 5);
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (6, 30, 6);
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (7, 30, 7);
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (8, 30, 8);
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (9, 30, 9);
+-- Ingredientes
+INSERT INTO ingredientes (id, nome, unidade) VALUES
+    (1,  'Massa de pizza 30cm',  'un'),
+    (2,  'Molho de tomate',      'ml'),
+    (3,  'Mussarela',            'g'),
+    (4,  'Presunto',             'g'),
+    (5,  'Calabresa fatiada',    'g'),
+    (6,  'Cebola',               'g'),
+    (7,  'Milho',                'g'),
+    (8,  'Frango desfiado',      'g'),
+    (9,  'Cheddar',              'g'),
+    (10, 'Bacon',                'g'),
+    (11, 'Refrigerante 350ml',   'un'),
+    (12, 'Suco natural 300ml',   'un');
 
--- Inserção das receitas 
-INSERT INTO receitas (id, titulo) VALUES (1, 'Pizza calabresa');
-INSERT INTO receitas (id, titulo) VALUES (2, 'Pizza queijo e presunto');
-INSERT INTO receitas (id, titulo) VALUES (3, 'Pizza margherita');
+-- Itens de estoque (100 unidades de cada para testes)
+INSERT INTO itens_estoque (ingrediente_id, quantidade) VALUES
+    (1, 100), (2, 10000), (3, 10000), (4, 5000),
+    (5, 5000), (6, 3000), (7, 3000), (8, 5000),
+    (9, 3000), (10, 3000), (11, 200), (12, 200);
 
--- Associação dos ingredientes à receita Pizza calabresa
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (1, 1); -- Disco de pizza
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (1, 6); -- Molho de tomate (200ml)
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (1, 3); -- Porcao de mussarela
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (1, 5); -- Porcao de calabresa
--- Associação dos ingredientes à receita Pizza queijo e presunto
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (2, 1); -- Disco de pizza
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (2, 6); -- Molho de tomate (200ml)
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (2, 3); -- Porcao de mussarela
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (2, 4); -- Porcao de presunto
--- Associação dos ingredientes à receita Pizza margherita
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (3, 1); -- Disco de pizza
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (3, 6); -- Molho de tomate (200ml)
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (3, 3); -- Porcao de mussarela
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (3, 8); -- Porcao de cebola
+-- Itens do cardápio 1
+INSERT INTO itens_cardapio (id, cardapio_id, descricao, preco_unit, disponivel) VALUES
+    (1, 1, 'Pizza Margherita (30cm) - Molho, mussarela e manjericão',         42.90, TRUE),
+    (2, 1, 'Pizza Calabresa (30cm) - Molho, mussarela e calabresa',           44.90, TRUE),
+    (3, 1, 'Pizza Frango com Catupiry (30cm) - Frango, catupiry e milho',     46.90, TRUE),
+    (4, 1, 'Pizza Quatro Queijos (30cm) - Mussarela, cheddar, gorgonzola e parmesão', 49.90, TRUE),
+    (5, 1, 'Pizza Especial Bacon (30cm) - Mussarela, bacon e cebola caramelada', 52.90, TRUE),
+    (6, 1, 'Refrigerante Lata 350ml',                                          6.90, TRUE),
+    (7, 1, 'Suco Natural 300ml',                                               8.90, TRUE);
 
--- insercao dos produtos
-INSERT INTO produtos (id,descricao,preco) VALUES (1,'Pizza calabresa',5500);
-INSERT INTO produtos (id,descricao,preco) VALUES (2,'Pizza queijo e presunto',6000);
-INSERT INTO produtos (id,descricao,preco) VALUES (3,'Pizza margherita',4000);
+-- Receitas (ingredientes necessários por item)
+-- Pizza Margherita
+INSERT INTO receitas (item_cardapio_id, ingrediente_id, quantidade) VALUES
+    (1, 1,  1),    -- 1 massa
+    (1, 2, 80),    -- 80ml molho
+    (1, 3, 150);   -- 150g mussarela
 
--- Associação dos produtos com as receitas
-INSERT INTO produto_receita (produto_id,receita_id) VALUES(1,1);
-INSERT INTO produto_receita (produto_id,receita_id) VALUES(2,2);
-INSERT INTO produto_receita (produto_id,receita_id) VALUES(3,3);
+-- Pizza Calabresa
+INSERT INTO receitas (item_cardapio_id, ingrediente_id, quantidade) VALUES
+    (2, 1,  1),
+    (2, 2, 80),
+    (2, 3, 120),
+    (2, 5, 100),   -- 100g calabresa
+    (2, 6,  30);   -- 30g cebola
 
--- Insercao dos cardapios
-INSERT INTO cardapios (id,titulo) VALUES(1,'Cardapio de Agosto');
-INSERT INTO cardapios (id,titulo) VALUES(2,'Cardapio de Setembro');
+-- Pizza Frango com Catupiry
+INSERT INTO receitas (item_cardapio_id, ingrediente_id, quantidade) VALUES
+    (3, 1,  1),
+    (3, 2, 80),
+    (3, 3, 100),
+    (3, 8, 120),   -- frango
+    (3, 7,  50);   -- milho
 
--- Associação dos cardapios com os produtos
-INSERT INTO cardapio_produto (cardapio_id,produto_id) VALUES (1,1);
-INSERT INTO cardapio_produto (cardapio_id,produto_id) VALUES (1,2);
-INSERT INTO cardapio_produto (cardapio_id,produto_id) VALUES (1,3);
+-- Pizza Quatro Queijos
+INSERT INTO receitas (item_cardapio_id, ingrediente_id, quantidade) VALUES
+    (4, 1,  1),
+    (4, 2, 80),
+    (4, 3, 100),
+    (4, 9,  60);   -- cheddar
 
-INSERT INTO cardapio_produto (cardapio_id,produto_id) VALUES (2,1);
-INSERT INTO cardapio_produto (cardapio_id,produto_id) VALUES (2,3);
+-- Pizza Especial Bacon
+INSERT INTO receitas (item_cardapio_id, ingrediente_id, quantidade) VALUES
+    (5, 1,  1),
+    (5, 2, 80),
+    (5, 3, 120),
+    (5, 10, 80),   -- bacon
+    (5, 6,  40);   -- cebola
+
+-- Refrigerante
+INSERT INTO receitas (item_cardapio_id, ingrediente_id, quantidade) VALUES
+    (6, 11, 1);
+
+-- Suco
+INSERT INTO receitas (item_cardapio_id, ingrediente_id, quantidade) VALUES
+    (7, 12, 1);
+
+-- Cliente de teste (senha: "senha123" em BCrypt)
+INSERT INTO clientes (id, nome, cpf, celular, endereco, email, senha) VALUES
+    (1, 'João Silva', '123.456.789-00', '(51) 99999-1234',
+     'Rua das Flores, 100, Porto Alegre/RS', 'joao@email.com',
+     '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBpwTpyYMSzKey');

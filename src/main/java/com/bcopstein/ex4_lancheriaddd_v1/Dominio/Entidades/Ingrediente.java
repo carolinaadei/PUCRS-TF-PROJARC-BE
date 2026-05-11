@@ -1,14 +1,20 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades;
 
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "ingredientes")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Ingrediente {
-    private long id;
-    private String descricao;
 
-    public Ingrediente(long id, String descricao) {
-        this.id = id;
-        this.descricao = descricao;
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public long getId() { return id; }
-    public String getDescricao() { return descricao; }
+    @Column(nullable = false, unique = true, length = 100)
+    private String nome;
+
+    @Column(nullable = false, length = 20)
+    private String unidade;
 }

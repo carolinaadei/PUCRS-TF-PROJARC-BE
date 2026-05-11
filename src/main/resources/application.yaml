@@ -1,26 +1,41 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:pizzadb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:pizzaria;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
     password:
+
+  jpa:
+    hibernate:
+      ddl-auto: none          # schema gerenciado pelo schema.sql
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
+
   sql:
     init:
-      mode: always   # executa schema.sql no boot
-    schema-locations: classpath:schema.sql
-    data-locations: classpath:data.sql
+      mode: always
+      schema-locations: classpath:db/schema.sql
+      data-locations: classpath:db/data.sql
+
   h2:
     console:
       enabled: true
-      path: /h2
-logging:
-  level:
-    org:
-      springframework:
-        jdbc: DEBUG
-    com:
-      bcopstein: DEBUG
-application:
-  name: ex4-lancheriaddd-v1
+      path: /h2-console
+
+  security:
+    # A configuração real fica em SecurityConfig.java
+    # Esta propriedade apenas suprime o warning do password gerado
+    user:
+      name: disabled
+      password: disabled
+
+app:
+  jwt:
+    secret: "25442A462D4A614E645267556B5870327336763979244226452948404D635166"
+    expiration-ms: 86400000   # 24 horas
+
 server:
   port: 8080

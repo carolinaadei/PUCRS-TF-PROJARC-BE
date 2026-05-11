@@ -1,16 +1,24 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades;
 
+import jakarta.persistence.*;
+import lombok.*;
 import java.util.List;
 
+@Entity
+@Table(name = "cardapios")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Cardapio {
-    private CabecalhoCardapio cabecalhoCardapio;
-    private List<Produto> produtos;
 
-    public Cardapio(CabecalhoCardapio cabecalhoCardapio, List<Produto> produtos) {
-        this.cabecalhoCardapio = cabecalhoCardapio;
-        this.produtos = produtos;
-    }
-    public CabecalhoCardapio getCabecalhoCardapio(){ return cabecalhoCardapio; }
-    public List<Produto> getProdutos() { return produtos; }
-    public void setProdutos(List<Produto> produtos){this.produtos = produtos;}
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 120)
+    private String descricao;
+
+    @Column(nullable = false)
+    private boolean corrente;
+
+    @OneToMany(mappedBy = "cardapio", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<ItemCardapio> itens;
 }

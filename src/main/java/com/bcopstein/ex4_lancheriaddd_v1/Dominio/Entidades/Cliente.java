@@ -1,23 +1,33 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades;
 
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "clientes")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Cliente {
-    private String cpf;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 150)
     private String nome;
+
+    @Column(nullable = false, unique = true, length = 14)
+    private String cpf;
+
+    @Column(length = 20)
     private String celular;
+
+    @Column(length = 300)
     private String endereco;
+
+    @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-    public Cliente(String cpf, String nome, String celular, String endereco, String email) {
-        this.cpf = cpf;
-        this.nome = nome;
-        this.celular = celular;
-        this.endereco = endereco;
-        this.email = email;
-    }
-
-    public String getCpf() { return cpf; }
-    public String getNome() { return nome; }
-    public String getCelular() { return celular; }
-    public String getEndereco() { return endereco; }
-    public String getEmail() { return email; }
+    /** Armazenado como hash BCrypt */
+    @Column(nullable = false, length = 255)
+    private String senha;
 }

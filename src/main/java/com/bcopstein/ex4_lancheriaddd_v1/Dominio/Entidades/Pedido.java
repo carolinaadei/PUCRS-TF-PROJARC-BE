@@ -1,79 +1,72 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades;
 
+import jakarta.persistence.*;
+import lombok.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Table(name = "pedidos")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Pedido {
-    public enum Status {
-        NOVO,
-        APROVADO,
-        PAGO,
-        AGUARDANDO,
-        PREPARACAO,
-        PRONTO,
-        TRANSPORTE,
-        ENTREGUE
-    }
-    private long id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
-    private LocalDateTime dataHoraPagamento;
-    private List<ItemPedido> itens;
-    private Status status;
-    private double valor;
-    private double impostos;
-    private double desconto;
-    private double valorCobrado;
 
-    public Pedido(long id, Cliente cliente, LocalDateTime dataHoraPagamento, List<ItemPedido> itens,
-            Pedido.Status status, double valor, double impostos, double desconto, double valorCobrado) {
-        this.id = id;
-        this.cliente = cliente;
-        this.dataHoraPagamento = dataHoraPagamento;
-        this.itens = itens;
-        this.status = status;
-        this.valor = valor;
-        this.impostos = impostos;
-        this.desconto = desconto;
-        this.valorCobrado = valorCobrado;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private StatusPedido status;
+
+    @Column(name = "endereco_entrega", nullable = false, length = 300)
+    private String enderecoEntrega;
+
+    @Column(name = "custo_itens", precision = 10, scale = 2)
+    private BigDecimal custoItens;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal desconto;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal imposto;
+
+    @Column(name = "custo_final", precision = 10, scale = 2)
+    private BigDecimal custoFinal;
+
+    @Column(name = "criado_em", nullable = false, updatable = false)
+    private LocalDateTime criadoEm;
+
+    @Column(name = "atualizado_em", nullable = false)
+    private LocalDateTime atualizadoEm;
+
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ItemPedido> itens = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        criadoEm = LocalDateTime.now();
+        atualizadoEm = LocalDateTime.now();
     }
 
-    public long getId() {
-        return id;
+    @PreUpdate
+    protected void onUpdate() {
+        atualizadoEm = LocalDateTime.now();
     }
 
-    public Cliente getCliente() {
-        return cliente;
+    /** Regra de negócio: só pode cancelar pedidos APROVADOS (não pagos). */
+    public boolean podeCancelar() {
+        return this.status == StatusPedido.APROVADO;
     }
 
-    public LocalDateTime getDataHoraPagamento() {
-        return dataHoraPagamento;
-    }
-
-    public List<ItemPedido> getItens() {
-        return itens;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status){
-        this.status = status;
-    }
-
-    public double getValor() {
-        return valor;
-    }
-
-    public double getImpostos() {
-        return impostos;
-    }
-
-    public double getDesconto() {
-        return desconto;
-    }
-
-    public double getValorCobrado() {
-        return valorCobrado;
+    /** Regra de negócio: só pode pagar pedidos APROVADOS. */
+    public boolean podePagar() {
+        return this.status == StatusPedido.APROVADO;
     }
 }

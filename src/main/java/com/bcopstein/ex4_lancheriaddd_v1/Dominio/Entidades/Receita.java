@@ -1,19 +1,26 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades;
 
-import java.util.List;
+import jakarta.persistence.*;
+import lombok.*;
+import java.math.BigDecimal;
 
+@Entity
+@Table(name = "receitas")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Receita {
-    private long id;
-    private String titulo;
-    private List<Ingrediente> ingredientes;
 
-    public Receita(long id, String titulo, List<Ingrediente> ingredientes) {
-        this.id = id;
-        this.titulo = titulo;
-        this.ingredientes = ingredientes;
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public long getId() { return id; }
-    public String getTitulo(){ return titulo; }
-    public List<Ingrediente> getIngredientes() { return ingredientes; }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_cardapio_id", nullable = false)
+    private ItemCardapio itemCardapio;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ingrediente_id", nullable = false)
+    private Ingrediente ingrediente;
+
+    @Column(nullable = false, precision = 10, scale = 3)
+    private BigDecimal quantidade;
 }

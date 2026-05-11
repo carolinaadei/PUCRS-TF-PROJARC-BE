@@ -1,15 +1,30 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades;
 
-public class ItemEstoque {
-    private Ingrediente ingrediente;
-    private int quantidade;
+import jakarta.persistence.*;
+import lombok.*;
+import java.math.BigDecimal;
 
-    public ItemEstoque(Ingrediente ingrediente, int quantidade) {
-        this.ingrediente = ingrediente;
-        this.quantidade = quantidade;
+@Entity
+@Table(name = "itens_estoque")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+public class ItemEstoque {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ingrediente_id", nullable = false, unique = true)
+    private Ingrediente ingrediente;
+
+    @Column(nullable = false, precision = 10, scale = 3)
+    private BigDecimal quantidade;
+
+    public boolean temSuficiente(BigDecimal qtd) {
+        return this.quantidade.compareTo(qtd) >= 0;
     }
 
-    public Ingrediente getIngrediente() { return ingrediente; }
-    public int getQuantidade() { return quantidade; }
-    public void setQuantidade(int quantidade) { this.quantidade = quantidade; }
+    public void consumir(BigDecimal qtd) {
+        this.quantidade = this.quantidade.subtract(qtd);
+    }
 }

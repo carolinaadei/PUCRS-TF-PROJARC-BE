@@ -1,26 +1,33 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cardapio;
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Produto;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemCardapio;
+import java.math.BigDecimal;
+import java.util.List;
 
-public class CardapioResponse {
-    private Cardapio cardapio;
-    private List<Produto> sugestoesDoChef;
-    
-    public CardapioResponse(Cardapio cardapio, List<Produto> sugestoesDoChef) {
-        this.cardapio = cardapio;
-        this.sugestoesDoChef = sugestoesDoChef;
+public record CardapioResponse(
+        Long id,
+        String descricao,
+        List<ItemCardapioResponse> itens
+) {
+    public record ItemCardapioResponse(
+            Long id,
+            String descricao,
+            BigDecimal precoUnit,
+            boolean disponivel
+    ) {
+        public static ItemCardapioResponse from(ItemCardapio ic) {
+            return new ItemCardapioResponse(ic.getId(), ic.getDescricao(), ic.getPrecoUnit(), ic.isDisponivel());
+        }
     }
 
-    public Cardapio getCardapio() {
-        return cardapio;
-    }
-
-    public List<Produto> getSugestoesDoChef() {
-        return sugestoesDoChef;
+    public static CardapioResponse from(Cardapio c) {
+        List<ItemCardapioResponse> itens = c.getItens() == null
+                ? List.of()
+                : c.getItens().stream()
+                        .filter(ItemCardapio::isDisponivel)
+                        .map(ItemCardapioResponse::from)
+                        .toList();
+        return new CardapioResponse(c.getId(), c.getDescricao(), itens);
     }
 }
