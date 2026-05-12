@@ -1,6 +1,7 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,5 +35,15 @@ public class PedidoService {
         pedidoRepository.salvar(pedido);
 
         return pedido;
+    }
+
+    public List<Pedido> listarEntreguesEntre(LocalDateTime inicio, LocalDateTime fim) {
+        if (inicio == null || fim == null) {
+            throw new RuntimeException("Datas de início e fim são obrigatórias");
+        }
+        if (inicio.isAfter(fim)) {
+            throw new RuntimeException("Data de início não pode ser posterior à data de fim");
+        }
+        return pedidoRepository.buscarEntreguesEntre(inicio, fim);
     }
 }
