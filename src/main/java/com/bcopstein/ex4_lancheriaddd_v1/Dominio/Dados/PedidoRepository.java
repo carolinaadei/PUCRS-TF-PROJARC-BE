@@ -9,5 +9,6 @@ public interface PedidoRepository {
     Pedido buscarPorId(long id);
     void salvar(Pedido pedido);
     List<Pedido> buscarEntreguesEntre(LocalDateTime inicio, LocalDateTime fim);
+    List<Pedido> buscarEntreguesPorClienteEntre(String clienteCpf, LocalDateTime inicio, LocalDateTime fim);
 
 }

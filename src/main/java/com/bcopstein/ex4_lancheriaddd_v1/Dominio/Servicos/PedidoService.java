@@ -46,4 +46,17 @@ public class PedidoService {
         }
         return pedidoRepository.buscarEntreguesEntre(inicio, fim);
     }
+
+    public List<Pedido> listarEntreguesPorClienteEntre(String clienteCpf, LocalDateTime inicio, LocalDateTime fim) {
+        if (clienteCpf == null || clienteCpf.isBlank()) {
+            throw new RuntimeException("CPF do cliente é obrigatório");
+        }
+        if (inicio == null || fim == null) {
+            throw new RuntimeException("Datas de início e fim são obrigatórias");
+        }
+        if (inicio.isAfter(fim)) {
+            throw new RuntimeException("Data de início não pode ser posterior à data de fim");
+        }
+        return pedidoRepository.buscarEntreguesPorClienteEntre(clienteCpf, inicio, fim);
+    }
 }

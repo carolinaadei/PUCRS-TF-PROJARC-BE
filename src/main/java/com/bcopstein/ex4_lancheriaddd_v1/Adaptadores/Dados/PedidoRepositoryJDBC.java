@@ -85,4 +85,33 @@ public class PedidoRepositoryJDBC implements PedidoRepository {
                     return p;
                 });
     }
+
+    @Override
+    public List<Pedido> buscarEntreguesPorClienteEntre(String clienteCpf, LocalDateTime inicio, LocalDateTime fim) {
+        String sql = "SELECT id, cliente_cpf, status, valor, impostos, desconto, valor_cobrado, " +
+                "data_hora_pagamento, cancelado_por, data_hora_cancelamento FROM pedidos " +
+                "WHERE status = 'ENTREGUE' AND cliente_cpf = ? AND data_hora_pagamento BETWEEN ? AND ?";
+        return this.jdbcTemplate.query(
+                sql,
+                ps -> {
+                    ps.setString(1, clienteCpf);
+                    ps.setObject(2, inicio);
+                    ps.setObject(3, fim);
+                },
+                (rs, rowNum) -> {
+                    Pedido p = new Pedido(
+                            rs.getLong("id"),
+                            null,
+                            rs.getObject("data_hora_pagamento", LocalDateTime.class),
+                            null,
+                            Pedido.Status.valueOf(rs.getString("status")),
+                            rs.getDouble("valor"),
+                            rs.getDouble("impostos"),
+                            rs.getDouble("desconto"),
+                            rs.getDouble("valor_cobrado"));
+                    p.setCanceladoPor(rs.getString("cancelado_por"));
+                    p.setDataHoraCancelamento(rs.getObject("data_hora_cancelamento", LocalDateTime.class));
+                    return p;
+                });
+    }
 }
