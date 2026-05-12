@@ -12,8 +12,10 @@ public class Pedido {
         PREPARACAO,
         PRONTO,
         TRANSPORTE,
-        ENTREGUE
+        ENTREGUE,
+        CANCELADO
     }
+
     private long id;
     private Cliente cliente;
     private LocalDateTime dataHoraPagamento;
@@ -23,6 +25,8 @@ public class Pedido {
     private double impostos;
     private double desconto;
     private double valorCobrado;
+    private String canceladoPor;
+    private LocalDateTime dataHoraCancelamento;
 
     public Pedido(long id, Cliente cliente, LocalDateTime dataHoraPagamento, List<ItemPedido> itens,
             Pedido.Status status, double valor, double impostos, double desconto, double valorCobrado) {
@@ -57,7 +61,7 @@ public class Pedido {
         return status;
     }
 
-    public void setStatus(Status status){
+    public void setStatus(Status status) {
         this.status = status;
     }
 
@@ -75,5 +79,21 @@ public class Pedido {
 
     public double getValorCobrado() {
         return valorCobrado;
+    }
+
+    public String getCanceladoPor() {
+        return canceladoPor;
+    }
+
+    public void setCanceladoPor(String canceladoPor) {
+        this.canceladoPor = canceladoPor;
+    }
+
+    public LocalDateTime getDataHoraCancelamento() {
+        return dataHoraCancelamento;
+    }
+
+    public void setDataHoraCancelamento(LocalDateTime dataHoraCancelamento) {
+        this.dataHoraCancelamento = dataHoraCancelamento;
     }
 }

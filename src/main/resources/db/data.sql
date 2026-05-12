@@ -66,3 +66,17 @@ INSERT INTO cardapio_produto (cardapio_id,produto_id) VALUES (1,3);
 
 INSERT INTO cardapio_produto (cardapio_id,produto_id) VALUES (2,1);
 INSERT INTO cardapio_produto (cardapio_id,produto_id) VALUES (2,3);
+
+-- Pedido aprovado (pode ser cancelado)
+INSERT INTO pedidos (id, cliente_cpf, status, valor, impostos, desconto, valor_cobrado)
+VALUES (1, '9001', 'APROVADO', 5500, 550, 0, 6050);
+
+INSERT INTO itens_pedido (id, pedido_id, produto_id, quantidade)
+VALUES (1, 1, 1, 1);
+
+-- Pedido já pago (não pode ser cancelado)
+INSERT INTO pedidos (id, cliente_cpf, status, valor, impostos, desconto, valor_cobrado, data_hora_pagamento)
+VALUES (2, '9002', 'PAGO', 6000, 600, 0, 6600, '2026-05-01 14:30:00');
+
+INSERT INTO itens_pedido (id, pedido_id, produto_id, quantidade)
+VALUES (2, 2, 2, 1);
