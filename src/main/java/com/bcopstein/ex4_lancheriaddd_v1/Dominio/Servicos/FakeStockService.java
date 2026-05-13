@@ -1,8 +1,9 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos;
 
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 import java.util.List;
+
 import org.springframework.stereotype.Service;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 
 
 @Service
@@ -18,7 +19,7 @@ public class FakeStockService implements IStockService {
             false: if there's no ingredients for the item.
             true: if all ingredients for the item are available.
         */
-        System.out.println("[FAKE STOCK] Verificando disponibilidade de: " + item);
+        System.out.println("[FAKE STOCK] Checking availability for: " + item);
         System.out.println("Status: OK!");
         return true;
     }
