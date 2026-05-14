@@ -12,21 +12,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.AcompanharPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.CancelarPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ListarPedidosEntreguesUC;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.AcompanhamentoPedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.CancelarPedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.PedidoResponse;
 
 @RestController
 @RequestMapping("/pedidos")
 public class PedidoController {
-    private CancelarPedidoUC cancelarPedidoUC;
-    private ListarPedidosEntreguesUC listarPedidosEntreguesUC;
+    private final CancelarPedidoUC cancelarPedidoUC;
+    private final ListarPedidosEntreguesUC listarPedidosEntreguesUC;
+    private final AcompanharPedidoUC acompanharPedidoUC;
 
     public PedidoController(CancelarPedidoUC cancelarPedidoUC,
-                            ListarPedidosEntreguesUC listarPedidosEntreguesUC) {
+                            ListarPedidosEntreguesUC listarPedidosEntreguesUC,
+                            AcompanharPedidoUC acompanharPedidoUC) {
         this.cancelarPedidoUC = cancelarPedidoUC;
         this.listarPedidosEntreguesUC = listarPedidosEntreguesUC;
+        this.acompanharPedidoUC = acompanharPedidoUC;
     }
 
     @PostMapping("/{id}/cancelar")
@@ -49,5 +54,13 @@ public class PedidoController {
         } catch (DateTimeParseException e) {
             throw new RuntimeException("Formato de data inválido. Use o formato: yyyy-MM-ddTHH:mm:ss");
         }
+    }
+
+    @GetMapping("/{id}/status")
+    @CrossOrigin("*")
+    public AcompanhamentoPedidoResponse acompanharPedido(
+            @PathVariable(value = "id") long id,
+            @RequestParam String cpf) {
+        return acompanharPedidoUC.run(id, cpf);
     }
 }
