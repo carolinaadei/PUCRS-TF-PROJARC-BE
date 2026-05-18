@@ -6,6 +6,10 @@ import java.util.Optional;
 
 public interface ClienteRepository {
     Optional<Cliente> recuperaPorCpf(String cpf);
+
     List<Cliente> recuperaTodos();
+
     Cliente salvar(Cliente cliente);
+
+    Cliente buscarPorCpf(String cpf);
 }

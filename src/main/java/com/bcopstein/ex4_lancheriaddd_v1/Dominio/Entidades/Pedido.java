@@ -3,7 +3,15 @@ package com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Entidade de domínio que representa um pedido.
+ *
+ * Alteração em relação à versão anterior: adição do campo {@code enderecoEntrega},
+ * necessário para a funcionalidade de Submissão de Pedido (Task).
+ * Os demais campos e construtores foram preservados.
+ */
 public class Pedido {
+
     public enum Status {
         NOVO,
         APROVADO,
@@ -12,8 +20,10 @@ public class Pedido {
         PREPARACAO,
         PRONTO,
         TRANSPORTE,
-        ENTREGUE
+        ENTREGUE,
+        CANCELADO
     }
+
     private long id;
     private Cliente cliente;
     private LocalDateTime dataHoraPagamento;
@@ -23,9 +33,17 @@ public class Pedido {
     private double impostos;
     private double desconto;
     private double valorCobrado;
+    private String canceladoPor;
+    private LocalDateTime dataHoraCancelamento;
 
-    public Pedido(long id, Cliente cliente, LocalDateTime dataHoraPagamento, List<ItemPedido> itens,
-            Pedido.Status status, double valor, double impostos, double desconto, double valorCobrado) {
+    /** Endereço informado pelo cliente no momento da submissão do pedido. */
+    private String enderecoEntrega;
+
+    // ── Construtor completo (novo — inclui enderecoEntrega) ──────────────────
+    public Pedido(long id, Cliente cliente, LocalDateTime dataHoraPagamento,
+                  List<ItemPedido> itens, Status status,
+                  double valor, double impostos, double desconto, double valorCobrado,
+                  String enderecoEntrega) {
         this.id = id;
         this.cliente = cliente;
         this.dataHoraPagamento = dataHoraPagamento;
@@ -35,45 +53,45 @@ public class Pedido {
         this.impostos = impostos;
         this.desconto = desconto;
         this.valorCobrado = valorCobrado;
+        this.enderecoEntrega = enderecoEntrega;
     }
 
-    public long getId() {
-        return id;
+    // ── Construtor de compatibilidade (sem enderecoEntrega) ──────────────────
+    // Mantém retrocompatibilidade com PedidoRepositoryJDBC existente.
+    public Pedido(long id, Cliente cliente, LocalDateTime dataHoraPagamento,
+                  List<ItemPedido> itens, Status status,
+                  double valor, double impostos, double desconto, double valorCobrado) {
+        this(id, cliente, dataHoraPagamento, itens, status,
+             valor, impostos, desconto, valorCobrado, null);
     }
 
-    public Cliente getCliente() {
-        return cliente;
+    // ── Getters / Setters ────────────────────────────────────────────────────
+
+    public long getId() { return id; }
+    public void setId(long id) { this.id = id; }
+
+    public Cliente getCliente() { return cliente; }
+
+    public LocalDateTime getDataHoraPagamento() { return dataHoraPagamento; }
+
+    public List<ItemPedido> getItens() { return itens; }
+
+    public Status getStatus() { return status; }
+    public void setStatus(Status status) { this.status = status; }
+
+    public double getValor() { return valor; }
+    public double getImpostos() { return impostos; }
+    public double getDesconto() { return desconto; }
+    public double getValorCobrado() { return valorCobrado; }
+
+    public String getCanceladoPor() { return canceladoPor; }
+    public void setCanceladoPor(String canceladoPor) { this.canceladoPor = canceladoPor; }
+
+    public LocalDateTime getDataHoraCancelamento() { return dataHoraCancelamento; }
+    public void setDataHoraCancelamento(LocalDateTime dataHoraCancelamento) {
+        this.dataHoraCancelamento = dataHoraCancelamento;
     }
 
-    public LocalDateTime getDataHoraPagamento() {
-        return dataHoraPagamento;
-    }
-
-    public List<ItemPedido> getItens() {
-        return itens;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status){
-        this.status = status;
-    }
-
-    public double getValor() {
-        return valor;
-    }
-
-    public double getImpostos() {
-        return impostos;
-    }
-
-    public double getDesconto() {
-        return desconto;
-    }
-
-    public double getValorCobrado() {
-        return valorCobrado;
-    }
+    public String getEnderecoEntrega() { return enderecoEntrega; }
+    public void setEnderecoEntrega(String enderecoEntrega) { this.enderecoEntrega = enderecoEntrega; }
 }

@@ -39,6 +39,10 @@ public class PedidoEntity {
     @Column(nullable = false)
     private Double valorCobrado;
 
+    private String enderecoEntrega;
+    private String canceladoPor;
+    private LocalDateTime dataHoraCancelamento;
+
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemPedidoEntity> itens;
 }

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +31,7 @@ public class PedidoRepositoryJPA implements PedidoRepository {
 
     @Override
     @Transactional
-    public Pedido salvar(Pedido pedido) {
+    public Pedido criar(Pedido pedido) {
         ClienteEntity clienteEntity = clienteJpa.findById(pedido.getCliente().getCpf())
             .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado: " + pedido.getCliente().getCpf()));
 
@@ -42,6 +43,7 @@ public class PedidoRepositoryJPA implements PedidoRepository {
         entity.setImpostos(pedido.getImpostos());
         entity.setDesconto(pedido.getDesconto());
         entity.setValorCobrado(pedido.getValorCobrado());
+        entity.setEnderecoEntrega(pedido.getEnderecoEntrega());
 
         List<ItemPedidoEntity> itens = pedido.getItens().stream().map(item -> {
             ProdutoEntity produtoEntity = produtoJpa.findById(item.getItem().getId())
@@ -54,6 +56,17 @@ public class PedidoRepositoryJPA implements PedidoRepository {
         }).toList();
 
         entity.setItens(itens);
+        return toDomain(pedidoJpa.save(entity));
+    }
+
+    @Override
+    @Transactional
+    public Pedido salvar(Pedido pedido) {
+        PedidoEntity entity = pedidoJpa.findById(pedido.getId())
+            .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado: " + pedido.getId()));
+        entity.setStatus(pedido.getStatus());
+        entity.setCanceladoPor(pedido.getCanceladoPor());
+        entity.setDataHoraCancelamento(pedido.getDataHoraCancelamento());
         return toDomain(pedidoJpa.save(entity));
     }
 
@@ -76,6 +89,17 @@ public class PedidoRepositoryJPA implements PedidoRepository {
         });
     }
 
+    @Override
+    public Pedido buscarPorId(long id) {
+        return pedidoJpa.findById(id).map(this::toDomain).orElse(null);
+    }
+
+    @Override
+    public List<Pedido> buscarEntreguesEntre(LocalDateTime inicio, LocalDateTime fim) {
+        return pedidoJpa.findByStatusAndDataHoraPagamentoBetween(Pedido.Status.ENTREGUE, inicio, fim)
+            .stream().map(this::toDomain).toList();
+    }
+
     private Pedido toDomain(PedidoEntity e) {
         Cliente cliente = new Cliente(
             e.getCliente().getCpf(),
@@ -85,13 +109,14 @@ public class PedidoRepositoryJPA implements PedidoRepository {
             e.getCliente().getEmail()
         );
 
-        List<ItemPedido> itens = e.getItens().stream().map(item -> {
-            ProdutoEntity p = item.getProduto();
-            Produto produto = new Produto(p.getId(), p.getDescricao(), null, p.getPreco().intValue());
-            return new ItemPedido(produto, item.getQuantidade());
-        }).toList();
+        List<ItemPedido> itens = e.getItens() == null ? List.of() :
+            e.getItens().stream().map(item -> {
+                ProdutoEntity p = item.getProduto();
+                Produto produto = new Produto(p.getId(), p.getDescricao(), null, p.getPreco().intValue());
+                return new ItemPedido(produto, item.getQuantidade());
+            }).toList();
 
-        return new Pedido(
+        Pedido pedido = new Pedido(
             e.getId(),
             cliente,
             e.getDataHoraPagamento(),
@@ -100,7 +125,11 @@ public class PedidoRepositoryJPA implements PedidoRepository {
             e.getValor(),
             e.getImpostos(),
             e.getDesconto(),
-            e.getValorCobrado()
+            e.getValorCobrado(),
+            e.getEnderecoEntrega()
         );
+        pedido.setCanceladoPor(e.getCanceladoPor());
+        pedido.setDataHoraCancelamento(e.getDataHoraCancelamento());
+        return pedido;
     }
 }

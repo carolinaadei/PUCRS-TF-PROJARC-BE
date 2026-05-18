@@ -68,16 +68,19 @@ create table if not exists cardapio_produto (
 create table if not exists pedidos (
   id bigserial primary key,
   cliente_cpf varchar(15) not null,
-  data_hora_pagamento timestamp,
   status varchar(20) not null,
-  valor double precision not null,
-  impostos double precision not null,
-  desconto double precision not null,
-  valor_cobrado double precision not null,
+  valor double precision not null default 0,
+  impostos double precision not null default 0,
+  desconto double precision not null default 0,
+  valor_cobrado double precision not null default 0,
+  endereco_entrega varchar(255),
+  data_hora_pagamento timestamp,
+  cancelado_por varchar(100),
+  data_hora_cancelamento timestamp,
   foreign key (cliente_cpf) references clientes(cpf)
 );
 
--- Tabela de Itens do Pedido
+-- Tabela de itens do pedido
 create table if not exists itens_pedido (
   id bigserial primary key,
   pedido_id bigint not null,
