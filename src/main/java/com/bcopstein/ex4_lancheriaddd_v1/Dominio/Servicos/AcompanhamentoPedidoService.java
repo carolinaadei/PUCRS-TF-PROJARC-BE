@@ -26,7 +26,7 @@ public class AcompanhamentoPedidoService {
     private final PedidoStatusRepository pedidoStatusRepository;
 
     @Autowired
-    public AcompanhamentoPedidoService(PedidoRepository pedidoRepository,
+    private AcompanhamentoPedidoService(PedidoRepository pedidoRepository,
                                         PedidoStatusRepository pedidoStatusRepository) {
         this.pedidoRepository = pedidoRepository;
         this.pedidoStatusRepository = pedidoStatusRepository;
