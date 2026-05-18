@@ -63,48 +63,68 @@ public class PedidoRepositoryJDBC implements PedidoRepository {
 
     @Override
     public Pedido buscarPorId(long id) {
-        String sql =
-            "SELECT id, cliente_cpf, status, valor, impostos, desconto, valor_cobrado, " +
-            "data_hora_pagamento, cancelado_por, data_hora_cancelamento, endereco_entrega " +
-            "FROM pedidos WHERE id = ?";
-
-        List<Pedido> pedidos = jdbcTemplate.query(
-            sql,
-            ps -> ps.setLong(1, id),
-            (rs, rowNum) -> {
-                Pedido p = new Pedido(
-                    rs.getLong("id"),
-                    null,
-                    rs.getObject("data_hora_pagamento", LocalDateTime.class),
-                    null,
-                    Pedido.Status.valueOf(rs.getString("status")),
-                    rs.getDouble("valor"),
-                    rs.getDouble("impostos"),
-                    rs.getDouble("desconto"),
-                    rs.getDouble("valor_cobrado"),
-                    rs.getString("endereco_entrega")
-                );
-                p.setCanceladoPor(rs.getString("cancelado_por"));
-                p.setDataHoraCancelamento(
-                    rs.getObject("data_hora_cancelamento", LocalDateTime.class));
-                return p;
-            }
-        );
-
-        return pedidos.isEmpty() ? null : pedidos.getFirst();
+        String sql = "SELECT id, cliente_cpf, status, valor, impostos, desconto, valor_cobrado, " +
+                "data_hora_pagamento, cancelado_por, data_hora_cancelamento FROM pedidos WHERE id = ?";
+        List<Pedido> pedidos = this.jdbcTemplate.query(
+                sql,
+                ps -> ps.setLong(1, id),
+                (rs, rowNum) -> {
+                    Pedido p = new Pedido(
+                            rs.getLong("id"),
+                            null,
+                            rs.getObject("data_hora_pagamento", LocalDateTime.class),
+                            null,
+                            Pedido.Status.valueOf(rs.getString("status")),
+                            rs.getDouble("valor"),
+                            rs.getDouble("impostos"),
+                            rs.getDouble("desconto"),
+                            rs.getDouble("valor_cobrado"));
+                    p.setCanceladoPor(rs.getString("cancelado_por"));
+                    p.setDataHoraCancelamento(rs.getObject("data_hora_cancelamento", LocalDateTime.class));
+                    return p;
+                });
+        if (pedidos.isEmpty()) {
+            return null;
+        }
+        return pedidos.getFirst();
     }
 
     @Override
     public void salvar(Pedido pedido) {
-        String sql =
-            "UPDATE pedidos SET status = ?, cancelado_por = ?, data_hora_cancelamento = ? " +
-            "WHERE id = ?";
-        jdbcTemplate.update(
-            sql,
-            pedido.getStatus().name(),
-            pedido.getCanceladoPor(),
-            pedido.getDataHoraCancelamento(),
-            pedido.getId()
-        );
+        String sql = "UPDATE pedidos SET status = ?, cancelado_por = ?, data_hora_cancelamento = ? WHERE id = ?";
+        this.jdbcTemplate.update(
+                sql,
+                pedido.getStatus().name(),
+                pedido.getCanceladoPor(),
+                pedido.getDataHoraCancelamento(),
+                pedido.getId());
+    }
+
+    @Override
+    public List<Pedido> buscarEntreguesEntre(LocalDateTime inicio, LocalDateTime fim) {
+        String sql = "SELECT id, cliente_cpf, status, valor, impostos, desconto, valor_cobrado, " +
+                "data_hora_pagamento, cancelado_por, data_hora_cancelamento FROM pedidos " +
+                "WHERE status = 'ENTREGUE' AND data_hora_pagamento BETWEEN ? AND ?";
+        return this.jdbcTemplate.query(
+                sql,
+                ps -> {
+                    ps.setObject(1, inicio);
+                    ps.setObject(2, fim);
+                },
+                (rs, rowNum) -> {
+                    Pedido p = new Pedido(
+                            rs.getLong("id"),
+                            null,
+                            rs.getObject("data_hora_pagamento", LocalDateTime.class),
+                            null,
+                            Pedido.Status.valueOf(rs.getString("status")),
+                            rs.getDouble("valor"),
+                            rs.getDouble("impostos"),
+                            rs.getDouble("desconto"),
+                            rs.getDouble("valor_cobrado"));
+                    p.setCanceladoPor(rs.getString("cancelado_por"));
+                    p.setDataHoraCancelamento(rs.getObject("data_hora_cancelamento", LocalDateTime.class));
+                    return p;
+                });
     }
 }

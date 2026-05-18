@@ -120,4 +120,14 @@ public class PedidoService {
 
         return pedido;
     }
+
+    public List<Pedido> listarEntreguesEntre(LocalDateTime inicio, LocalDateTime fim) {
+        if (inicio == null || fim == null) {
+            throw new RuntimeException("Datas de início e fim são obrigatórias");
+        }
+        if (inicio.isAfter(fim)) {
+            throw new RuntimeException("Data de início não pode ser posterior à data de fim");
+        }
+        return pedidoRepository.buscarEntreguesEntre(inicio, fim);
+    }
 }
