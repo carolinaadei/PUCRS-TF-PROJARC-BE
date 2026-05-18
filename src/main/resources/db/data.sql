@@ -87,3 +87,7 @@ VALUES (3, '9001', 'ENTREGUE', 5500, 550, 0, 6050, '2026-05-01 14:30:00');
 
 INSERT INTO itens_pedido (id, pedido_id, produto_id, quantidade)
 VALUES (3, 3, 1, 1);
+
+-- Histórico de status do pedido entregue (para UC8 e UC9)
+INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel)
+VALUES (3, 'ENTREGUE', '2026-05-02 18:00:00', 'sistema');

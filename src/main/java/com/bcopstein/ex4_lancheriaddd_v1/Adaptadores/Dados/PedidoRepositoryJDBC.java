@@ -1,5 +1,6 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados;
 
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
 
 @Component
 public class PedidoRepositoryJDBC implements PedidoRepository {
@@ -29,7 +31,7 @@ public class PedidoRepositoryJDBC implements PedidoRepository {
                 (rs, rowNum) -> {
                     Pedido p = new Pedido(
                             rs.getLong("id"),
-                            null,
+                            new Cliente(rs.getString("cliente_cpf"), null, null, null, null),
                             rs.getObject("data_hora_pagamento", LocalDateTime.class),
                             null,
                             Pedido.Status.valueOf(rs.getString("status")),
@@ -60,9 +62,12 @@ public class PedidoRepositoryJDBC implements PedidoRepository {
 
     @Override
     public List<Pedido> buscarEntreguesEntre(LocalDateTime inicio, LocalDateTime fim) {
-        String sql = "SELECT id, cliente_cpf, status, valor, impostos, desconto, valor_cobrado, " +
-                "data_hora_pagamento, cancelado_por, data_hora_cancelamento FROM pedidos " +
-                "WHERE status = 'ENTREGUE' AND data_hora_pagamento BETWEEN ? AND ?";
+        String sql = "SELECT p.id, p.cliente_cpf, p.status, p.valor, p.impostos, p.desconto, p.valor_cobrado, " +
+             "p.data_hora_pagamento, p.cancelado_por, p.data_hora_cancelamento " +
+             "FROM pedidos p " +
+             "JOIN pedido_status_historico h ON h.pedido_id = p.id " +
+             "WHERE p.status = 'ENTREGUE' AND h.status = 'ENTREGUE' " +
+             "AND h.data_hora BETWEEN ? AND ?";
         return this.jdbcTemplate.query(
                 sql,
                 ps -> {
@@ -72,7 +77,7 @@ public class PedidoRepositoryJDBC implements PedidoRepository {
                 (rs, rowNum) -> {
                     Pedido p = new Pedido(
                             rs.getLong("id"),
-                            null,
+                            new Cliente(rs.getString("cliente_cpf"), null, null, null, null),
                             rs.getObject("data_hora_pagamento", LocalDateTime.class),
                             null,
                             Pedido.Status.valueOf(rs.getString("status")),
@@ -88,9 +93,11 @@ public class PedidoRepositoryJDBC implements PedidoRepository {
 
     @Override
     public List<Pedido> buscarEntreguesPorClienteEntre(String clienteCpf, LocalDateTime inicio, LocalDateTime fim) {
-        String sql = "SELECT id, cliente_cpf, status, valor, impostos, desconto, valor_cobrado, " +
-                "data_hora_pagamento, cancelado_por, data_hora_cancelamento FROM pedidos " +
-                "WHERE status = 'ENTREGUE' AND cliente_cpf = ? AND data_hora_pagamento BETWEEN ? AND ?";
+        String sql = "SELECT p.id, p.cliente_cpf, p.status, p.valor, p.impostos, p.desconto, p.valor_cobrado, " +
+                "p.data_hora_pagamento, p.cancelado_por, p.data_hora_cancelamento " +
+                "FROM pedidos p " +
+                "JOIN pedido_status_historico h ON h.pedido_id = p.id " +
+                "WHERE p.status = 'ENTREGUE' AND h.status = 'ENTREGUE' AND p.cliente_cpf = ? AND h.data_hora BETWEEN ? AND ?";
         return this.jdbcTemplate.query(
                 sql,
                 ps -> {
@@ -101,7 +108,7 @@ public class PedidoRepositoryJDBC implements PedidoRepository {
                 (rs, rowNum) -> {
                     Pedido p = new Pedido(
                             rs.getLong("id"),
-                            null,
+                            new Cliente(rs.getString("cliente_cpf"), null, null, null, null),
                             rs.getObject("data_hora_pagamento", LocalDateTime.class),
                             null,
                             Pedido.Status.valueOf(rs.getString("status")),

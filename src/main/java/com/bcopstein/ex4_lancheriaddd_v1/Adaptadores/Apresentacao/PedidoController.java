@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.CancelarPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ListarPedidosClienteUC;
@@ -44,29 +45,17 @@ public class PedidoController {
     @GetMapping("/entregues")
     @CrossOrigin("*")
     public List<PedidoResponse> listarEntregues(
-            @RequestParam String inicio,
-            @RequestParam String fim) {
-        try {
-            LocalDateTime dataInicio = LocalDateTime.parse(inicio);
-            LocalDateTime dataFim = LocalDateTime.parse(fim);
-            return listarPedidosEntreguesUC.run(dataInicio, dataFim);
-        } catch (DateTimeParseException e) {
-            throw new RuntimeException("Formato de data inválido. Use o formato: yyyy-MM-ddTHH:mm:ss");
-        }
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim) {
+        return listarPedidosEntreguesUC.run(inicio, fim);
     }
 
     @GetMapping("/entregues/cliente")
     @CrossOrigin("*")
     public List<PedidoResponse> listarEntreguesPorCliente(
             @RequestParam String cpf,
-            @RequestParam String inicio,
-            @RequestParam String fim) {
-        try {
-            LocalDateTime dataInicio = LocalDateTime.parse(inicio);
-            LocalDateTime dataFim = LocalDateTime.parse(fim);
-            return listarPedidosClienteUC.run(cpf, dataInicio, dataFim);
-        } catch (DateTimeParseException e) {
-            throw new RuntimeException("Formato de data inválido. Use o formato: yyyy-MM-ddTHH:mm:ss");
-        }
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim) {
+        return listarPedidosClienteUC.run(cpf, inicio, fim);
     }
 }

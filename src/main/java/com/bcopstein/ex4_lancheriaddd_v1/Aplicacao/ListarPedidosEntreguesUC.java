@@ -24,7 +24,7 @@ public class ListarPedidosEntreguesUC {
         return pedidos.stream()
             .map(p -> new PedidoResponse(
                 p.getId(),
-                p.getCliente() != null ? p.getCliente().getEmail() : "N/A",
+                p.getCliente() != null ? p.getCliente().getCpf() : "N/A",
                 p.getStatus().name(),
                 p.getValorCobrado(),
                 p.getDataHoraPagamento()

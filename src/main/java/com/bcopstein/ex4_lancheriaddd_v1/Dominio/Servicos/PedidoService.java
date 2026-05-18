@@ -22,11 +22,11 @@ public class PedidoService {
         Pedido pedido = pedidoRepository.buscarPorId(id);
 
         if (pedido == null) {
-            throw new RuntimeException("Pedido não encontrado");
+            throw new IllegalArgumentException("Pedido não encontrado");
         }
 
         if (pedido.getStatus() != Pedido.Status.APROVADO) {
-            throw new RuntimeException("Pedido não pode ser cancelado pois está com status: " + pedido.getStatus());
+            throw new IllegalArgumentException("Pedido não pode ser cancelado pois está com status: " + pedido.getStatus());
         }
 
         pedido.setStatus(Pedido.Status.CANCELADO);
@@ -39,23 +39,23 @@ public class PedidoService {
 
     public List<Pedido> listarEntreguesEntre(LocalDateTime inicio, LocalDateTime fim) {
         if (inicio == null || fim == null) {
-            throw new RuntimeException("Datas de início e fim são obrigatórias");
+            throw new IllegalArgumentException("Datas de início e fim são obrigatórias");
         }
         if (inicio.isAfter(fim)) {
-            throw new RuntimeException("Data de início não pode ser posterior à data de fim");
+            throw new IllegalArgumentException("Data de início não pode ser posterior à data de fim");
         }
         return pedidoRepository.buscarEntreguesEntre(inicio, fim);
     }
 
     public List<Pedido> listarEntreguesPorClienteEntre(String clienteCpf, LocalDateTime inicio, LocalDateTime fim) {
         if (clienteCpf == null || clienteCpf.isBlank()) {
-            throw new RuntimeException("CPF do cliente é obrigatório");
+            throw new IllegalArgumentException("CPF do cliente é obrigatório");
         }
         if (inicio == null || fim == null) {
-            throw new RuntimeException("Datas de início e fim são obrigatórias");
+            throw new IllegalArgumentException("Datas de início e fim são obrigatórias");
         }
         if (inicio.isAfter(fim)) {
-            throw new RuntimeException("Data de início não pode ser posterior à data de fim");
+            throw new IllegalArgumentException("Data de início não pode ser posterior à data de fim");
         }
         return pedidoRepository.buscarEntreguesPorClienteEntre(clienteCpf, inicio, fim);
     }

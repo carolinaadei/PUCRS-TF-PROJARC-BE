@@ -24,7 +24,7 @@ public class ListarPedidosClienteUC {
         return pedidos.stream()
             .map(p -> new PedidoResponse(
                 p.getId(),
-                clienteCpf,
+                p.getCliente() != null ? p.getCliente().getCpf() : clienteCpf,
                 p.getStatus().name(),
                 p.getValorCobrado(),
                 p.getDataHoraPagamento()
