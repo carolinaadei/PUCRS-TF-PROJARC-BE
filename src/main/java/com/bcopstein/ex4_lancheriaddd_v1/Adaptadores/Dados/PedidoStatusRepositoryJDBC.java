@@ -20,12 +20,8 @@ import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.PedidoStatusHistorico
 @Repository
 public class PedidoStatusRepositoryJDBC implements PedidoStatusRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-
     @Autowired
-    public PedidoStatusRepositoryJDBC(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public List<PedidoStatusHistorico> buscarHistoricoPorPedidoId(long pedidoId) {
