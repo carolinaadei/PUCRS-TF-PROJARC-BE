@@ -6,11 +6,9 @@ import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.CardapioResponse;
 
 
 @Component
-public class RecuperarCardapioAtualUC {
-    private RecuperarCardapioUC recuperarCardapioUC;
-
+public class RecuperarCardapioAtualUC implements IRecuperarCardapioAtualUC {
     @Autowired
-    private RecuperarCardapioUC recuperarCardapioUC;
+    private IRecuperarCardapioUC recuperarCardapioUC;
 
     public CardapioResponse run() {
         long idCardapioAtual = 1; // Supondo ID do cardápio atual seja 1
