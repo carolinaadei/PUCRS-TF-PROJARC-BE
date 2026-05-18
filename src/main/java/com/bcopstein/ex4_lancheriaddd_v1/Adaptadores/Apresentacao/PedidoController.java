@@ -1,37 +1,53 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Apresentacao;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.CancelarPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ListarPedidosClienteUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ListarPedidosEntreguesUC;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.SubmeterPedidoUC;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Requests.SubmeterPedidoRequest;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.CancelarPedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.PedidoResponse;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.SubmeterPedidoResponse;
 
 @RestController
 @RequestMapping("/pedidos")
 public class PedidoController {
-    private CancelarPedidoUC cancelarPedidoUC;
-    private ListarPedidosEntreguesUC listarPedidosEntreguesUC;
-    private ListarPedidosClienteUC listarPedidosClienteUC;
+
+    private final SubmeterPedidoUC submeterPedidoUC;
+    private final CancelarPedidoUC cancelarPedidoUC;
+    private final ListarPedidosEntreguesUC listarPedidosEntreguesUC;
+    private final ListarPedidosClienteUC listarPedidosClienteUC;
 
     public PedidoController(CancelarPedidoUC cancelarPedidoUC,
-            ListarPedidosEntreguesUC listarPedidosEntreguesUC,
-            ListarPedidosClienteUC listarPedidosClienteUC) {
+                            SubmeterPedidoUC submeterPedidoUC,
+                            ListarPedidosEntreguesUC listarPedidosEntreguesUC,
+                            ListarPedidosClienteUC listarPedidosClienteUC) {
         this.cancelarPedidoUC = cancelarPedidoUC;
+        this.submeterPedidoUC = submeterPedidoUC;
         this.listarPedidosEntreguesUC = listarPedidosEntreguesUC;
         this.listarPedidosClienteUC = listarPedidosClienteUC;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @CrossOrigin("*")
+    public SubmeterPedidoResponse submeterPedido(@RequestBody SubmeterPedidoRequest request) {
+        return submeterPedidoUC.run(request);
     }
 
     @PostMapping("/{id}/cancelar")

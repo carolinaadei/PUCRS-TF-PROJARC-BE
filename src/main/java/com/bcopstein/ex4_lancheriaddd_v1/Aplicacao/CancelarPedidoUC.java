@@ -1,7 +1,5 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Aplicacao;
 
-import java.time.LocalDateTime;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,18 +10,19 @@ import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.PedidoService;
 @Component
 public class CancelarPedidoUC {
 
+    private final PedidoService pedidoService;
+
     @Autowired
-    private PedidoService pedidoService;
+    public CancelarPedidoUC(PedidoService pedidoService) {
+        this.pedidoService = pedidoService;
+    }
 
-    public CancelarPedidoResponse run(long idPedido, String canceladoPor) {
-        Pedido pedido = pedidoService.cancelar(idPedido, canceladoPor);
-
+    public CancelarPedidoResponse run(long id, String canceladoPor) {
+        Pedido pedido = pedidoService.cancelar(id, canceladoPor);
         return new CancelarPedidoResponse(
             pedido.getId(),
             pedido.getStatus().name(),
-            "Pedido cancelado com sucesso",
-            pedido.getCanceladoPor(),
-            pedido.getDataHoraCancelamento()
+            "Pedido cancelado com sucesso"
         );
     }
 }
