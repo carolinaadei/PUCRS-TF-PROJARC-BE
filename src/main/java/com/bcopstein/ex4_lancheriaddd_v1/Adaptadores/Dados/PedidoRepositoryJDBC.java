@@ -1,6 +1,5 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados;
 
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,14 +26,13 @@ public class PedidoRepositoryJDBC implements PedidoRepository {
 
     @Override
     public Pedido criar(Pedido pedido) {
-        String sqlPedido =
-            "INSERT INTO pedidos (cliente_cpf, status, valor, impostos, desconto, " +
-            "valor_cobrado, endereco_entrega) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sqlPedido = "INSERT INTO pedidos (cliente_cpf, status, valor, impostos, desconto, " +
+                "valor_cobrado, endereco_entrega) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(con -> {
-            var ps = con.prepareStatement(sqlPedido, new String[]{"id"});
+            var ps = con.prepareStatement(sqlPedido, new String[] { "id" });
             ps.setString(1, pedido.getCliente().getCpf());
             ps.setString(2, pedido.getStatus().name());
             ps.setDouble(3, pedido.getValor());
@@ -48,16 +46,14 @@ public class PedidoRepositoryJDBC implements PedidoRepository {
         long idGerado = keyHolder.getKey().longValue();
         pedido.setId(idGerado);
 
-        String sqlItem =
-            "INSERT INTO itens_pedido (pedido_id, produto_id, quantidade) VALUES (?, ?, ?)";
+        String sqlItem = "INSERT INTO itens_pedido (pedido_id, produto_id, quantidade) VALUES (?, ?, ?)";
 
         for (ItemPedido item : pedido.getItens()) {
             jdbcTemplate.update(
-                sqlItem,
-                idGerado,
-                item.getItem().getId(),
-                item.getQuantidade()
-            );
+                    sqlItem,
+                    idGerado,
+                    item.getItem().getId(),
+                    item.getQuantidade());
         }
 
         return pedido;
@@ -93,23 +89,25 @@ public class PedidoRepositoryJDBC implements PedidoRepository {
 
     @Override
     public void salvar(Pedido pedido) {
-        String sql = "UPDATE pedidos SET status = ?, cancelado_por = ?, data_hora_cancelamento = ? WHERE id = ?";
+        String sql = "UPDATE pedidos SET status = ?, cancelado_por = ?, data_hora_cancelamento = ?, " +
+                "data_hora_pagamento = ? WHERE id = ?";
         this.jdbcTemplate.update(
                 sql,
                 pedido.getStatus().name(),
                 pedido.getCanceladoPor(),
                 pedido.getDataHoraCancelamento(),
+                pedido.getDataHoraPagamento(),
                 pedido.getId());
     }
 
     @Override
     public List<Pedido> buscarEntreguesEntre(LocalDateTime inicio, LocalDateTime fim) {
         String sql = "SELECT p.id, p.cliente_cpf, p.status, p.valor, p.impostos, p.desconto, p.valor_cobrado, " +
-             "p.data_hora_pagamento, p.cancelado_por, p.data_hora_cancelamento " +
-             "FROM pedidos p " +
-             "JOIN pedido_status_historico h ON h.pedido_id = p.id " +
-             "WHERE p.status = 'ENTREGUE' AND h.status = 'ENTREGUE' " +
-             "AND h.data_hora BETWEEN ? AND ?";
+                "p.data_hora_pagamento, p.cancelado_por, p.data_hora_cancelamento " +
+                "FROM pedidos p " +
+                "JOIN pedido_status_historico h ON h.pedido_id = p.id " +
+                "WHERE p.status = 'ENTREGUE' AND h.status = 'ENTREGUE' " +
+                "AND h.data_hora BETWEEN ? AND ?";
         return this.jdbcTemplate.query(
                 sql,
                 ps -> {

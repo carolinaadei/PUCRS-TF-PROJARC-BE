@@ -1,7 +1,7 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Apresentacao;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,9 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.CancelarPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ListarPedidosClienteUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ListarPedidosEntreguesUC;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.PagarPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.SubmeterPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Requests.SubmeterPedidoRequest;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.CancelarPedidoResponse;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.PagarPedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.PedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.SubmeterPedidoResponse;
 
@@ -32,15 +34,18 @@ public class PedidoController {
     private final CancelarPedidoUC cancelarPedidoUC;
     private final ListarPedidosEntreguesUC listarPedidosEntreguesUC;
     private final ListarPedidosClienteUC listarPedidosClienteUC;
+    private final PagarPedidoUC pagarPedidoUC;
 
     public PedidoController(CancelarPedidoUC cancelarPedidoUC,
                             SubmeterPedidoUC submeterPedidoUC,
                             ListarPedidosEntreguesUC listarPedidosEntreguesUC,
-                            ListarPedidosClienteUC listarPedidosClienteUC) {
+                            ListarPedidosClienteUC listarPedidosClienteUC,
+                            PagarPedidoUC pagarPedidoUC) {
         this.cancelarPedidoUC = cancelarPedidoUC;
         this.submeterPedidoUC = submeterPedidoUC;
         this.listarPedidosEntreguesUC = listarPedidosEntreguesUC;
         this.listarPedidosClienteUC = listarPedidosClienteUC;
+        this.pagarPedidoUC = pagarPedidoUC;
     }
 
     @PostMapping
@@ -56,6 +61,12 @@ public class PedidoController {
             @PathVariable(value = "id") long id,
             @RequestParam String canceladoPor) {
         return cancelarPedidoUC.run(id, canceladoPor);
+    }
+
+    @PostMapping("/{id}/pagar")
+    @CrossOrigin("*")
+    public PagarPedidoResponse pagarPedido(@PathVariable(value = "id") long id) {
+        return pagarPedidoUC.run(id);
     }
 
     @GetMapping("/entregues")

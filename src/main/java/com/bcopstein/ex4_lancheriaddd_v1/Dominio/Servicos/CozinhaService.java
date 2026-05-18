@@ -6,8 +6,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
 
+@Primary
+@Service
 public class CozinhaService implements ICozinhaService {
     private Queue<Pedido> filaEntrada;
     private Pedido emPreparacao;
