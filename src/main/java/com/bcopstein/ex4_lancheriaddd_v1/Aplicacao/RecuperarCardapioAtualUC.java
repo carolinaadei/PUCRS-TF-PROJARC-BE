@@ -7,7 +7,7 @@ import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.CardapioResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.ConfiguracaoCardapio;
 
 @Component
-public class RecuperarCardapioAtualUC {
+public class RecuperarCardapioAtualUC implements IRecuperarCardapioAtualUC {
     @Autowired
     private IRecuperarCardapioUC recuperarCardapioUC;
 
