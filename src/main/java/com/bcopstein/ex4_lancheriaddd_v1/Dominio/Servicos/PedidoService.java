@@ -8,43 +8,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoStatusHistoricoRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.PedidoStatusHistorico;
 
 @Service
 public class PedidoService {
     private PedidoRepository pedidoRepository;
+    private PedidoStatusHistoricoRepository historicoRepository;
     private IPaymentService paymentService;
     private ICozinhaService cozinhaService;
 
     @Autowired
     public PedidoService(PedidoRepository pedidoRepository,
-            IPaymentService paymentService,
-            ICozinhaService cozinhaService) {
+                         PedidoStatusHistoricoRepository historicoRepository,
+                         IPaymentService paymentService,
+                         ICozinhaService cozinhaService) {
         this.pedidoRepository = pedidoRepository;
+        this.historicoRepository = historicoRepository;
         this.paymentService = paymentService;
         this.cozinhaService = cozinhaService;
-    }
-
-    public Pedido cancelar(long id, String canceladoPor) {
-        Pedido pedido = pedidoRepository.buscarPorId(id);
-
-        if (pedido == null) {
-            throw new NoSuchElementException("Pedido não encontrado");
-        }
-
-        if (pedido.getStatus() != Pedido.Status.NOVO &&
-                pedido.getStatus() != Pedido.Status.APROVADO) {
-            throw new IllegalArgumentException(
-                    "Pedido não pode ser cancelado pois está com status: " + pedido.getStatus());
-        }
-
-        pedido.setStatus(Pedido.Status.CANCELADO);
-        pedido.setCanceladoPor(canceladoPor);
-        pedido.setDataHoraCancelamento(LocalDateTime.now());
-        pedidoRepository.salvar(pedido);
-
-        return pedido;
     }
 
     public Pedido submeter(String clienteCpf, String enderecoEntrega, List<ItemPedido> itens) {
@@ -59,7 +43,37 @@ public class PedidoService {
         }
 
         Pedido pedido = new Pedido(0, null, null, itens, Pedido.Status.NOVO, 0, 0, 0, 0, enderecoEntrega);
-        return pedidoRepository.criar(pedido);
+        Pedido criado = pedidoRepository.criar(pedido);
+
+        historicoRepository.salvar(new PedidoStatusHistorico(
+            criado.getId(), Pedido.Status.NOVO, LocalDateTime.now(), "cliente"
+        ));
+
+        return criado;
+    }
+
+    public Pedido cancelar(long id, String canceladoPor) {
+        Pedido pedido = pedidoRepository.buscarPorId(id);
+
+        if (pedido == null) {
+            throw new NoSuchElementException("Pedido não encontrado");
+        }
+
+        if (pedido.getStatus() != Pedido.Status.NOVO &&
+            pedido.getStatus() != Pedido.Status.APROVADO) {
+            throw new IllegalArgumentException("Pedido não pode ser cancelado pois está com status: " + pedido.getStatus());
+        }
+
+        pedido.setStatus(Pedido.Status.CANCELADO);
+        pedido.setCanceladoPor(canceladoPor);
+        pedido.setDataHoraCancelamento(LocalDateTime.now());
+        pedidoRepository.salvar(pedido);
+
+        historicoRepository.salvar(new PedidoStatusHistorico(
+            pedido.getId(), Pedido.Status.CANCELADO, LocalDateTime.now(), canceladoPor
+        ));
+
+        return pedido;
     }
 
     public Pedido pagar(long id) {
@@ -82,6 +96,10 @@ public class PedidoService {
         pedido.setStatus(Pedido.Status.PAGO);
         pedido.setDataHoraPagamento(LocalDateTime.now());
         pedidoRepository.salvar(pedido);
+
+        historicoRepository.salvar(new PedidoStatusHistorico(
+            pedido.getId(), Pedido.Status.PAGO, LocalDateTime.now(), "cliente"
+        ));
 
         Pedido pedidoSalvo = pedidoRepository.buscarPorId(pedido.getId());
         cozinhaService.chegadaDePedido(pedido);
