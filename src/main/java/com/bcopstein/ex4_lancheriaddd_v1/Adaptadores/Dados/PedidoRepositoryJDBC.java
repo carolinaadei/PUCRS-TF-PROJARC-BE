@@ -5,18 +5,60 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
 
 @Component
 public class PedidoRepositoryJDBC implements PedidoRepository {
-    private JdbcTemplate jdbcTemplate;
+
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public PedidoRepositoryJDBC(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+    }
+
+    @Override
+    public Pedido criar(Pedido pedido) {
+        String sqlPedido =
+            "INSERT INTO pedidos (cliente_cpf, status, valor, impostos, desconto, " +
+            "valor_cobrado, endereco_entrega) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(con -> {
+            var ps = con.prepareStatement(sqlPedido, new String[]{"id"});
+            ps.setString(1, pedido.getCliente().getCpf());
+            ps.setString(2, pedido.getStatus().name());
+            ps.setDouble(3, pedido.getValor());
+            ps.setDouble(4, pedido.getImpostos());
+            ps.setDouble(5, pedido.getDesconto());
+            ps.setDouble(6, pedido.getValorCobrado());
+            ps.setString(7, pedido.getEnderecoEntrega());
+            return ps;
+        }, keyHolder);
+
+        long idGerado = keyHolder.getKey().longValue();
+        pedido.setId(idGerado);
+
+        String sqlItem =
+            "INSERT INTO itens_pedido (pedido_id, produto_id, quantidade) VALUES (?, ?, ?)";
+
+        for (ItemPedido item : pedido.getItens()) {
+            jdbcTemplate.update(
+                sqlItem,
+                idGerado,
+                item.getItem().getId(),
+                item.getQuantidade()
+            );
+        }
+
+        return pedido;
     }
 
     @Override

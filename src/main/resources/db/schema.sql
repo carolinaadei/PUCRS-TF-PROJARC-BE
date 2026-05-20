@@ -64,22 +64,25 @@ create table if not exists cardapio_produto (
   foreign key (produto_id) references produtos(id)
 );
 
+-- Tabela de Pedidos
 create table if not exists pedidos (
-  id bigint primary key auto_increment,
+  id bigint auto_increment primary key,
   cliente_cpf varchar(15) not null,
-  status varchar(30) not null,
-  valor double not null,
-  impostos double not null,
-  desconto double not null,
-  valor_cobrado double not null,
-  data_hora_pagamento datetime,
-  cancelado_por varchar(255),
-  data_hora_cancelamento datetime,
+  status varchar(20) not null,
+  valor double not null default 0,
+  impostos double not null default 0,
+  desconto double not null default 0,
+  valor_cobrado double not null default 0,
+  endereco_entrega varchar(255),
+  data_hora_pagamento timestamp,
+  cancelado_por varchar(100),
+  data_hora_cancelamento timestamp,
   foreign key (cliente_cpf) references clientes(cpf)
 );
 
+-- Tabela de itens do pedido
 create table if not exists itens_pedido (
-  id bigint primary key auto_increment,
+  id bigint auto_increment primary key,
   pedido_id bigint not null,
   produto_id bigint not null,
   quantidade int not null,
