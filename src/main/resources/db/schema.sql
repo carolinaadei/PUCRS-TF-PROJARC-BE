@@ -86,3 +86,10 @@ create table if not exists itens_pedido (
   foreign key (pedido_id) references pedidos(id),
   foreign key (produto_id) references produtos(id)
 );
+
+create table if not exists usuarios (
+  id bigint primary key auto_increment,
+  email varchar(255) unique not null,
+  password varchar(255) not null,
+  role varchar(50) not null
+);
