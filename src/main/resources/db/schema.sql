@@ -90,3 +90,12 @@ create table if not exists itens_pedido (
   foreign key (pedido_id) references pedidos(id),
   foreign key (produto_id) references produtos(id)
 );
+
+create table if not exists pedido_status_historico (
+  id bigint primary key auto_increment,
+  pedido_id bigint not null,
+  status varchar(30) not null,
+  data_hora datetime not null,
+  responsavel varchar(50) not null,
+  foreign key (pedido_id) references pedidos(id)
+);
