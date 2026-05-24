@@ -92,10 +92,10 @@ create table if not exists itens_pedido (
 );
 
 create table if not exists pedido_status_historico (
-  id bigint primary key auto_increment,
+  id bigserial primary key,
   pedido_id bigint not null,
   status varchar(30) not null,
-  data_hora datetime not null,
+  data_hora timestamp not null,
   responsavel varchar(50) not null,
   foreign key (pedido_id) references pedidos(id)
 );

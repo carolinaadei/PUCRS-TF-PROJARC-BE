@@ -23,7 +23,6 @@ import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.CancelarPedidoRespo
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.SubmeterPedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ListarPedidosEntreguesUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.AcompanhamentoPedidoResponse;
-import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.CancelarPedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.PedidoResponse;
 
 /**
@@ -33,8 +32,8 @@ import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.PedidoResponse;
  * substituindo o PedidoController original (que só tinha /cancelar).
  *
  * Endpoints expostos:
- *   POST /pedidos          → submete um novo pedido (status NOVO)
- *   POST /pedidos/{id}/cancelar → cancela um pedido NOVO ou APROVADO
+ * POST /pedidos → submete um novo pedido (status NOVO)
+ * POST /pedidos/{id}/cancelar → cancela um pedido NOVO ou APROVADO
  */
 @RestController
 @RequestMapping("/pedidos")
@@ -42,18 +41,17 @@ public class PedidoController {
     private final CancelarPedidoUC cancelarPedidoUC;
     private final ListarPedidosEntreguesUC listarPedidosEntreguesUC;
     private final AcompanharPedidoUC acompanharPedidoUC;
+    private final SubmeterPedidoUC submeterPedidoUC;
 
     public PedidoController(CancelarPedidoUC cancelarPedidoUC,
-                            ListarPedidosEntreguesUC listarPedidosEntreguesUC,
-                            AcompanharPedidoUC acompanharPedidoUC,
-                            SubmeterPedidoUC submeterPedidoUC) {
+            ListarPedidosEntreguesUC listarPedidosEntreguesUC,
+            AcompanharPedidoUC acompanharPedidoUC,
+            SubmeterPedidoUC submeterPedidoUC) {
 
-    private final SubmeterPedidoUC submeterPedidoUC;
-    private final CancelarPedidoUC cancelarPedidoUC;
-    private final ListarPedidosEntreguesUC listarPedidosEntreguesUC;
-
+        this.cancelarPedidoUC = cancelarPedidoUC;
         this.listarPedidosEntreguesUC = listarPedidosEntreguesUC;
         this.acompanharPedidoUC = acompanharPedidoUC;
+        this.submeterPedidoUC = submeterPedidoUC;
     }
 
     /**
@@ -61,20 +59,20 @@ public class PedidoController {
      *
      * Payload esperado:
      * {
-     *   "clienteCpf": "9001",
-     *   "enderecoEntrega": "Rua das Flores, 100",
-     *   "itens": [
-     *     { "produtoId": 1, "quantidade": 2 },
-     *     { "produtoId": 3, "quantidade": 1 }
-     *   ]
+     * "clienteCpf": "9001",
+     * "enderecoEntrega": "Rua das Flores, 100",
+     * "itens": [
+     * { "produtoId": 1, "quantidade": 2 },
+     * { "produtoId": 3, "quantidade": 1 }
+     * ]
      * }
      *
      * Resposta 201 Created:
      * {
-     *   "idPedido": 3,
-     *   "status": "NOVO",
-     *   "mensagem": "Pedido submetido com sucesso",
-     *   "enderecoEntrega": "Rua das Flores, 100"
+     * "idPedido": 3,
+     * "status": "NOVO",
+     * "mensagem": "Pedido submetido com sucesso",
+     * "enderecoEntrega": "Rua das Flores, 100"
      * }
      */
     @PostMapping

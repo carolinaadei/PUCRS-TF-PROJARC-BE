@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +46,7 @@ class AcompanhamentoPedidoServiceTest {
 
     @Test
     void consultarStatus_deveRetornarPedido_quandoCpfCorreto() {
-        when(pedidoRepository.buscarPorId(1L)).thenReturn(pedidoAprovado);
+        when(pedidoRepository.recuperaPorId(1L)).thenReturn(Optional.of(pedidoAprovado));
 
         Pedido resultado = service.consultarStatus(1L, "9001");
 
@@ -56,7 +57,7 @@ class AcompanhamentoPedidoServiceTest {
 
     @Test
     void consultarStatus_deveLancarIllegalArgument_quandoPedidoNaoExiste() {
-        when(pedidoRepository.buscarPorId(99L)).thenReturn(null);
+        when(pedidoRepository.recuperaPorId(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.consultarStatus(99L, "9001"))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -65,7 +66,7 @@ class AcompanhamentoPedidoServiceTest {
 
     @Test
     void consultarStatus_deveLancarAcessoNaoAutorizado_quandoCpfDiferente() {
-        when(pedidoRepository.buscarPorId(1L)).thenReturn(pedidoAprovado);
+        when(pedidoRepository.recuperaPorId(1L)).thenReturn(Optional.of(pedidoAprovado));
 
         assertThatThrownBy(() -> service.consultarStatus(1L, "9999"))
                 .isInstanceOf(AcessoNaoAutorizadoException.class)
@@ -76,7 +77,7 @@ class AcompanhamentoPedidoServiceTest {
     void consultarStatus_deveLancarAcessoNaoAutorizado_quandoClienteNull() {
         Pedido semCliente = new Pedido(1L, null, null, List.of(),
                 Pedido.Status.NOVO, 5500, 550, 0, 6050);
-        when(pedidoRepository.buscarPorId(1L)).thenReturn(semCliente);
+        when(pedidoRepository.recuperaPorId(1L)).thenReturn(Optional.of(semCliente));
 
         assertThatThrownBy(() -> service.consultarStatus(1L, "9001"))
                 .isInstanceOf(AcessoNaoAutorizadoException.class);
