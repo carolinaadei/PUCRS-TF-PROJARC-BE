@@ -8,7 +8,6 @@ import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.ConfiguracaoCardapio;
 
 @Component
 public class RecuperarCardapioAtualUC {
-
     @Autowired
     private RecuperarCardapioUC recuperarCardapioUC;
 
