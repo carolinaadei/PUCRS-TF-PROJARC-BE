@@ -46,9 +46,9 @@ INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (3, 3) ON CO
 INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (3, 8) ON CONFLICT DO NOTHING;
 
 -- Inserção dos produtos
-INSERT INTO produtos (id, descricao, preco) VALUES (1, 'Pizza calabresa', 5500) ON CONFLICT DO NOTHING;
-INSERT INTO produtos (id, descricao, preco) VALUES (2, 'Pizza queijo e presunto', 6000) ON CONFLICT DO NOTHING;
-INSERT INTO produtos (id, descricao, preco) VALUES (3, 'Pizza margherita', 4000) ON CONFLICT DO NOTHING;
+INSERT INTO produtos (id, descricao, preco, indicacao_chef) VALUES (1, 'Pizza calabresa', 5500, false) ON CONFLICT DO NOTHING;
+INSERT INTO produtos (id, descricao, preco, indicacao_chef) VALUES (2, 'Pizza queijo e presunto', 6000, true) ON CONFLICT DO NOTHING;
+INSERT INTO produtos (id, descricao, preco, indicacao_chef) VALUES (3, 'Pizza margherita', 4000, false) ON CONFLICT DO NOTHING;
 
 -- Associação dos produtos com as receitas
 INSERT INTO produto_receita (produto_id, receita_id) VALUES (1, 1) ON CONFLICT DO NOTHING;

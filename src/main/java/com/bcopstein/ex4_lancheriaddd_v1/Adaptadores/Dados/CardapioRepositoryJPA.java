@@ -45,7 +45,9 @@ public class CardapioRepositoryJPA implements CardapioRepository {
 
     @Override
     public List<Produto> indicacoesDoChef() {
-        return produtoJpa.findById(2L).map(p -> List.of(produtoToDomain(p))).orElse(List.of());
+        return produtoJpa.findByIndicacaoChefTrue().stream()
+            .map(this::produtoToDomain)
+            .toList();
     }
 
     private Produto produtoToDomain(ProdutoEntity e) {

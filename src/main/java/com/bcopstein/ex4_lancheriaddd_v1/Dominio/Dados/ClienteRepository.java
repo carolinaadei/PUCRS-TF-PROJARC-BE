@@ -10,6 +10,4 @@ public interface ClienteRepository {
     List<Cliente> recuperaTodos();
 
     Cliente salvar(Cliente cliente);
-
-    Cliente buscarPorCpf(String cpf);
 }
