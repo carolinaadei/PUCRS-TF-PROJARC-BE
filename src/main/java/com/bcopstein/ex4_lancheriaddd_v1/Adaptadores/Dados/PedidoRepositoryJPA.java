@@ -22,8 +22,8 @@ public class PedidoRepositoryJPA implements PedidoRepository {
 
     @Autowired
     public PedidoRepositoryJPA(PedidoJpaRepository pedidoJpa,
-                                ClienteJpaRepository clienteJpa,
-                                ProdutoJpaRepository produtoJpa) {
+            ClienteJpaRepository clienteJpa,
+            ProdutoJpaRepository produtoJpa) {
         this.pedidoJpa = pedidoJpa;
         this.clienteJpa = clienteJpa;
         this.produtoJpa = produtoJpa;
@@ -33,7 +33,8 @@ public class PedidoRepositoryJPA implements PedidoRepository {
     @Transactional
     public Pedido criar(Pedido pedido) {
         ClienteEntity clienteEntity = clienteJpa.findById(pedido.getCliente().getCpf())
-            .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado: " + pedido.getCliente().getCpf()));
+                .orElseThrow(
+                        () -> new IllegalArgumentException("Cliente não encontrado: " + pedido.getCliente().getCpf()));
 
         PedidoEntity entity = new PedidoEntity();
         entity.setCliente(clienteEntity);
@@ -47,7 +48,8 @@ public class PedidoRepositoryJPA implements PedidoRepository {
 
         List<ItemPedidoEntity> itens = pedido.getItens().stream().map(item -> {
             ProdutoEntity produtoEntity = produtoJpa.findById(item.getItem().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado: " + item.getItem().getId()));
+                    .orElseThrow(
+                            () -> new IllegalArgumentException("Produto não encontrado: " + item.getItem().getId()));
             ItemPedidoEntity itemEntity = new ItemPedidoEntity();
             itemEntity.setPedido(entity);
             itemEntity.setProduto(produtoEntity);
@@ -63,7 +65,7 @@ public class PedidoRepositoryJPA implements PedidoRepository {
     @Transactional
     public Pedido salvar(Pedido pedido) {
         PedidoEntity entity = pedidoJpa.findById(pedido.getId())
-            .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado: " + pedido.getId()));
+                .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado: " + pedido.getId()));
         entity.setStatus(pedido.getStatus());
         entity.setCanceladoPor(pedido.getCanceladoPor());
         entity.setDataHoraCancelamento(pedido.getDataHoraCancelamento());
@@ -90,44 +92,36 @@ public class PedidoRepositoryJPA implements PedidoRepository {
     }
 
     @Override
-    public Pedido buscarPorId(long id) {
-        return pedidoJpa.findById(id).map(this::toDomain).orElse(null);
-    }
-
-    @Override
     public List<Pedido> buscarEntreguesEntre(LocalDateTime inicio, LocalDateTime fim) {
         return pedidoJpa.findByStatusAndDataHoraPagamentoBetween(Pedido.Status.ENTREGUE, inicio, fim)
-            .stream().map(this::toDomain).toList();
+                .stream().map(this::toDomain).toList();
     }
 
     private Pedido toDomain(PedidoEntity e) {
         Cliente cliente = new Cliente(
-            e.getCliente().getCpf(),
-            e.getCliente().getNome(),
-            e.getCliente().getCelular(),
-            e.getCliente().getEndereco(),
-            e.getCliente().getEmail()
-        );
+                e.getCliente().getCpf(),
+                e.getCliente().getNome(),
+                e.getCliente().getCelular(),
+                e.getCliente().getEndereco(),
+                e.getCliente().getEmail());
 
-        List<ItemPedido> itens = e.getItens() == null ? List.of() :
-            e.getItens().stream().map(item -> {
-                ProdutoEntity p = item.getProduto();
-                Produto produto = new Produto(p.getId(), p.getDescricao(), null, p.getPreco().intValue());
-                return new ItemPedido(produto, item.getQuantidade());
-            }).toList();
+        List<ItemPedido> itens = e.getItens() == null ? List.of() : e.getItens().stream().map(item -> {
+            ProdutoEntity p = item.getProduto();
+            Produto produto = new Produto(p.getId(), p.getDescricao(), null, p.getPreco().intValue());
+            return new ItemPedido(produto, item.getQuantidade());
+        }).toList();
 
         Pedido pedido = new Pedido(
-            e.getId(),
-            cliente,
-            e.getDataHoraPagamento(),
-            itens,
-            e.getStatus(),
-            e.getValor(),
-            e.getImpostos(),
-            e.getDesconto(),
-            e.getValorCobrado(),
-            e.getEnderecoEntrega()
-        );
+                e.getId(),
+                cliente,
+                e.getDataHoraPagamento(),
+                itens,
+                e.getStatus(),
+                e.getValor(),
+                e.getImpostos(),
+                e.getDesconto(),
+                e.getValorCobrado(),
+                e.getEnderecoEntrega());
         pedido.setCanceladoPor(e.getCanceladoPor());
         pedido.setDataHoraCancelamento(e.getDataHoraCancelamento());
         return pedido;

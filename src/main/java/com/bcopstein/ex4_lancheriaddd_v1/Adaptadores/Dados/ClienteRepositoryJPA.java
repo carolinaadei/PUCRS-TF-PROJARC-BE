@@ -35,11 +35,6 @@ public class ClienteRepositoryJPA implements ClienteRepository {
         return toDomain(jpa.save(entity));
     }
 
-    @Override
-    public Cliente buscarPorCpf(String cpf) {
-        return jpa.findById(cpf).map(this::toDomain).orElse(null);
-    }
-
     private Cliente toDomain(ClienteEntity e) {
         return new Cliente(e.getCpf(), e.getNome(), e.getCelular(), e.getEndereco(), e.getEmail());
     }
