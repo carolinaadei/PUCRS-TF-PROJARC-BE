@@ -22,13 +22,12 @@ public class ListarPedidosEntreguesUC {
     public List<PedidoResponse> run(LocalDateTime inicio, LocalDateTime fim) {
         List<Pedido> pedidos = pedidoService.listarEntreguesEntre(inicio, fim);
         return pedidos.stream()
-            .map(p -> new PedidoResponse(
-                p.getId(),
-                p.getCliente() != null ? p.getCliente().getEmail() : "N/A",
-                p.getStatus().name(),
-                p.getValorCobrado(),
-                p.getDataHoraPagamento()
-            ))
-            .toList();
+                .map(p -> new PedidoResponse(
+                        p.getId(),
+                        p.getCliente() != null ? p.getCliente().getEmail() : "N/A",
+                        p.getStatus().name(),
+                        p.getValorCobrado(),
+                        p.getDataHoraPagamento()))
+                .toList();
     }
 }

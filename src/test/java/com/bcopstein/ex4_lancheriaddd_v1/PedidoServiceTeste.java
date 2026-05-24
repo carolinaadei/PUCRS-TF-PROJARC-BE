@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -51,10 +52,10 @@ class PedidoServiceTest {
     @BeforeEach
     void setUp() {
         clienteValido = new Cliente("9001", "Huguinho Pato", "51985744566",
-                                    "Rua das Flores, 100", "huguinho@email.com");
+                "Rua das Flores, 100", "huguinho@email.com");
 
         Receita receita = new Receita(1L, "Pizza calabresa",
-                                      List.of(new Ingrediente(1L, "Disco de pizza")));
+                List.of(new Ingrediente(1L, "Disco de pizza")));
         produtoValido = new Produto(1L, "Pizza calabresa", receita, 5500);
         itensValidos = List.of(new ItemPedido(produtoValido, 2));
     }
@@ -65,7 +66,7 @@ class PedidoServiceTest {
     @DisplayName("Deve criar pedido com status NOVO quando dados são válidos")
     void submeter_dadosValidos_criaPedidoNovo() {
         // Arrange
-        when(clienteRepository.buscarPorCpf("9001")).thenReturn(clienteValido);
+        when(clienteRepository.recuperaPorCpf("9001")).thenReturn(Optional.of(clienteValido));
         when(pedidoRepository.criar(any(Pedido.class))).thenAnswer(inv -> {
             Pedido p = inv.getArgument(0);
             p.setId(10L);
@@ -88,7 +89,7 @@ class PedidoServiceTest {
     @DisplayName("Deve lançar exceção quando CPF do cliente é nulo")
     void submeter_cpfNulo_lancaExcecao() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-            () -> pedidoService.submeter(null, "Rua A, 1", itensValidos));
+                () -> pedidoService.submeter(null, "Rua A, 1", itensValidos));
         assertTrue(ex.getMessage().contains("CPF"));
     }
 
@@ -96,7 +97,7 @@ class PedidoServiceTest {
     @DisplayName("Deve lançar exceção quando CPF do cliente é vazio")
     void submeter_cpfVazio_lancaExcecao() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-            () -> pedidoService.submeter("   ", "Rua A, 1", itensValidos));
+                () -> pedidoService.submeter("   ", "Rua A, 1", itensValidos));
         assertTrue(ex.getMessage().contains("CPF"));
     }
 
@@ -104,7 +105,7 @@ class PedidoServiceTest {
     @DisplayName("Deve lançar exceção quando endereço de entrega é nulo")
     void submeter_enderecoNulo_lancaExcecao() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-            () -> pedidoService.submeter("9001", null, itensValidos));
+                () -> pedidoService.submeter("9001", null, itensValidos));
         assertTrue(ex.getMessage().contains("ndere"));
     }
 
@@ -112,7 +113,7 @@ class PedidoServiceTest {
     @DisplayName("Deve lançar exceção quando lista de itens é vazia")
     void submeter_semItens_lancaExcecao() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-            () -> pedidoService.submeter("9001", "Rua A, 1", List.of()));
+                () -> pedidoService.submeter("9001", "Rua A, 1", List.of()));
         assertTrue(ex.getMessage().contains("item"));
     }
 
@@ -120,17 +121,17 @@ class PedidoServiceTest {
     @DisplayName("Deve lançar exceção quando lista de itens é nula")
     void submeter_itensNulos_lancaExcecao() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-            () -> pedidoService.submeter("9001", "Rua A, 1", null));
+                () -> pedidoService.submeter("9001", "Rua A, 1", null));
         assertTrue(ex.getMessage().contains("item"));
     }
 
     @Test
     @DisplayName("Deve lançar exceção quando cliente não existe no cadastro")
     void submeter_clienteNaoEncontrado_lancaExcecao() {
-        when(clienteRepository.buscarPorCpf("9999")).thenReturn(null);
+        when(clienteRepository.recuperaPorCpf("9999")).thenReturn(Optional.empty());
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-            () -> pedidoService.submeter("9999", "Rua A, 1", itensValidos));
+                () -> pedidoService.submeter("9999", "Rua A, 1", itensValidos));
         assertTrue(ex.getMessage().contains("9999"));
     }
 
@@ -140,7 +141,7 @@ class PedidoServiceTest {
         List<ItemPedido> itensInvalidos = List.of(new ItemPedido(produtoValido, 0));
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-            () -> pedidoService.submeter("9001", "Rua A, 1", itensInvalidos));
+                () -> pedidoService.submeter("9001", "Rua A, 1", itensInvalidos));
         assertTrue(ex.getMessage().contains("Quantidade"));
     }
 
@@ -150,8 +151,8 @@ class PedidoServiceTest {
     @DisplayName("Deve cancelar pedido com status NOVO")
     void cancelar_pedidoNovo_cancelaComSucesso() {
         Pedido pedidoNovo = new Pedido(1L, clienteValido, null, itensValidos,
-                                       Pedido.Status.NOVO, 0, 0, 0, 0, "Rua A, 1");
-        when(pedidoRepository.buscarPorId(1L)).thenReturn(pedidoNovo);
+                Pedido.Status.NOVO, 0, 0, 0, 0, "Rua A, 1");
+        when(pedidoRepository.recuperaPorId(1L)).thenReturn(Optional.of(pedidoNovo));
 
         Pedido resultado = pedidoService.cancelar(1L, "cliente");
 
@@ -165,8 +166,8 @@ class PedidoServiceTest {
     @DisplayName("Deve cancelar pedido com status APROVADO")
     void cancelar_pedidoAprovado_cancelaComSucesso() {
         Pedido pedidoAprovado = new Pedido(2L, clienteValido, null, itensValidos,
-                                            Pedido.Status.APROVADO, 5500, 550, 0, 6050, "Rua A, 1");
-        when(pedidoRepository.buscarPorId(2L)).thenReturn(pedidoAprovado);
+                Pedido.Status.APROVADO, 5500, 550, 0, 6050, "Rua A, 1");
+        when(pedidoRepository.recuperaPorId(2L)).thenReturn(Optional.of(pedidoAprovado));
 
         Pedido resultado = pedidoService.cancelar(2L, "admin");
 
@@ -177,21 +178,21 @@ class PedidoServiceTest {
     @DisplayName("Não deve cancelar pedido já PAGO")
     void cancelar_pedidoPago_lancaExcecao() {
         Pedido pedidoPago = new Pedido(3L, clienteValido, null, itensValidos,
-                                       Pedido.Status.PAGO, 5500, 550, 0, 6050, "Rua A, 1");
-        when(pedidoRepository.buscarPorId(3L)).thenReturn(pedidoPago);
+                Pedido.Status.PAGO, 5500, 550, 0, 6050, "Rua A, 1");
+        when(pedidoRepository.recuperaPorId(3L)).thenReturn(Optional.of(pedidoPago));
 
         RuntimeException ex = assertThrows(RuntimeException.class,
-            () -> pedidoService.cancelar(3L, "cliente"));
+                () -> pedidoService.cancelar(3L, "cliente"));
         assertTrue(ex.getMessage().contains("PAGO"));
     }
 
     @Test
     @DisplayName("Deve lançar exceção quando pedido não existe")
     void cancelar_pedidoInexistente_lancaExcecao() {
-        when(pedidoRepository.buscarPorId(999L)).thenReturn(null);
+        when(pedidoRepository.recuperaPorId(999L)).thenReturn(Optional.empty());
 
         RuntimeException ex = assertThrows(RuntimeException.class,
-            () -> pedidoService.cancelar(999L, "cliente"));
+                () -> pedidoService.cancelar(999L, "cliente"));
         assertTrue(ex.getMessage().contains("não encontrado"));
     }
 }
