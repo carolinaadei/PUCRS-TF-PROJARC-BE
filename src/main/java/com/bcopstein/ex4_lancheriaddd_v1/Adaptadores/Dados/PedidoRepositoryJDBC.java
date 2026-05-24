@@ -10,6 +10,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
 
@@ -63,17 +64,28 @@ public class PedidoRepositoryJDBC implements PedidoRepository {
 
     @Override
     public Pedido buscarPorId(long id) {
-        String sql = "SELECT id, cliente_cpf, status, valor, impostos, desconto, valor_cobrado, " +
-                "data_hora_pagamento, cancelado_por, data_hora_cancelamento FROM pedidos WHERE id = ?";
+        String sql =
+            "SELECT p.id, p.status, p.valor, p.impostos, p.desconto, p.valor_cobrado, " +
+            "       p.data_hora_pagamento, p.cancelado_por, p.data_hora_cancelamento, " +
+            "       c.cpf, c.nome, c.celular, c.endereco, c.email " +
+            "FROM pedidos p " +
+            "JOIN clientes c ON c.cpf = p.cliente_cpf " +
+            "WHERE p.id = ?";
         List<Pedido> pedidos = this.jdbcTemplate.query(
                 sql,
                 ps -> ps.setLong(1, id),
                 (rs, rowNum) -> {
+                    Cliente cliente = new Cliente(
+                            rs.getString("cpf"),
+                            rs.getString("nome"),
+                            rs.getString("celular"),
+                            rs.getString("endereco"),
+                            rs.getString("email"));
                     Pedido p = new Pedido(
                             rs.getLong("id"),
-                            null,
+                            cliente,
                             rs.getObject("data_hora_pagamento", LocalDateTime.class),
-                            null,
+                            List.of(),
                             Pedido.Status.valueOf(rs.getString("status")),
                             rs.getDouble("valor"),
                             rs.getDouble("impostos"),
@@ -116,7 +128,7 @@ public class PedidoRepositoryJDBC implements PedidoRepository {
                             rs.getLong("id"),
                             null,
                             rs.getObject("data_hora_pagamento", LocalDateTime.class),
-                            null,
+                            List.of(),
                             Pedido.Status.valueOf(rs.getString("status")),
                             rs.getDouble("valor"),
                             rs.getDouble("impostos"),

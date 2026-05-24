@@ -15,12 +15,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.AcompanharPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.CancelarPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.SubmeterPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Requests.SubmeterPedidoRequest;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.CancelarPedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.SubmeterPedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ListarPedidosEntreguesUC;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.AcompanhamentoPedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.CancelarPedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.PedidoResponse;
 
@@ -37,16 +39,20 @@ import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.PedidoResponse;
 @RestController
 @RequestMapping("/pedidos")
 public class PedidoController {
+    private final CancelarPedidoUC cancelarPedidoUC;
+    private final ListarPedidosEntreguesUC listarPedidosEntreguesUC;
+    private final AcompanharPedidoUC acompanharPedidoUC;
+
+    public PedidoController(CancelarPedidoUC cancelarPedidoUC,
+                            ListarPedidosEntreguesUC listarPedidosEntreguesUC,
+                            AcompanharPedidoUC acompanharPedidoUC,
+                            SubmeterPedidoUC submeterPedidoUC) {
 
     private final SubmeterPedidoUC submeterPedidoUC;
     private final CancelarPedidoUC cancelarPedidoUC;
 
-    public PedidoController(CancelarPedidoUC cancelarPedidoUC,
-                            ListarPedidosEntreguesUC listarPedidosEntreguesUC, 
-                            SubmeterPedidoUC submeterPedidoUC) {
-        this.cancelarPedidoUC = cancelarPedidoUC;
-        this.submeterPedidoUC = submeterPedidoUC;
         this.listarPedidosEntreguesUC = listarPedidosEntreguesUC;
+        this.acompanharPedidoUC = acompanharPedidoUC;
     }
 
     /**
@@ -102,5 +108,13 @@ public class PedidoController {
         } catch (DateTimeParseException e) {
             throw new RuntimeException("Formato de data inválido. Use o formato: yyyy-MM-ddTHH:mm:ss");
         }
+    }
+
+    @GetMapping("/{id}/status")
+    @CrossOrigin("*")
+    public AcompanhamentoPedidoResponse acompanharPedido(
+            @PathVariable(value = "id") long id,
+            @RequestParam String cpf) {
+        return acompanharPedidoUC.run(id, cpf);
     }
 }
