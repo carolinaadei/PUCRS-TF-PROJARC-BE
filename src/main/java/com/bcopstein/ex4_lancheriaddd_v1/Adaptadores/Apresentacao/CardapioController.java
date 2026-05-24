@@ -12,21 +12,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Apresentacao.Presenters.CabecalhoCardapioPresenter;
 import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Apresentacao.Presenters.CardapioPresenter;
-import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.RecuperaListaCardapiosUC;
-import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.RecuperarCardapioAtualUC;
-import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.RecuperarCardapioUC;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.IRecuperaListaCardapiosUC;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.IRecuperarCardapioAtualUC;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.IRecuperarCardapioUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.CardapioResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Produto;
 
 @RestController
 @RequestMapping("/cardapio")
 public class CardapioController {
-    private RecuperarCardapioUC recuperaCardapioUC;
-    private RecuperaListaCardapiosUC recuperaListaCardapioUC;
-    private RecuperarCardapioAtualUC recuperaCardapioAtualUC;
+    private IRecuperarCardapioUC recuperaCardapioUC;
+    private IRecuperaListaCardapiosUC recuperaListaCardapioUC;
+    private IRecuperarCardapioAtualUC recuperaCardapioAtualUC;
 
-    public CardapioController(RecuperarCardapioUC recuperaCardapioUC,
-                              RecuperaListaCardapiosUC recuperaListaCardapioUC, RecuperarCardapioAtualUC recuperaCardapioAtualUC) {
+    public CardapioController(IRecuperarCardapioUC recuperaCardapioUC,
+                              IRecuperaListaCardapiosUC recuperaListaCardapioUC,
+                              IRecuperarCardapioAtualUC recuperaCardapioAtualUC) {
         this.recuperaCardapioUC = recuperaCardapioUC;
         this.recuperaListaCardapioUC = recuperaListaCardapioUC;
         this.recuperaCardapioAtualUC = recuperaCardapioAtualUC;

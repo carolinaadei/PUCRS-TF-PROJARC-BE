@@ -17,11 +17,11 @@ import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.CalculadoraPreco.Resul
  * Serviço de domínio responsável pelas operações sobre Pedido.
  *
  * Regras de negócio implementadas aqui:
- *  - O cliente deve existir no cadastro.
- *  - O pedido deve conter ao menos um item.
- *  - Cada item deve ter quantidade >= 1.
- *  - O endereço de entrega não pode ser vazio.
- *  - Apenas pedidos com status NOVO ou APROVADO podem ser cancelados.
+ * - O cliente deve existir no cadastro.
+ * - O pedido deve conter ao menos um item.
+ * - Cada item deve ter quantidade >= 1.
+ * - O endereço de entrega não pode ser vazio.
+ * - Apenas pedidos com status NOVO ou APROVADO podem ser cancelados.
  *
  * Esta classe SUBSTITUI o PedidoService já existente no projeto,
  * unificando submissão e cancelamento em um único serviço de domínio.
@@ -35,8 +35,8 @@ public class PedidoService {
 
     @Autowired
     public PedidoService(PedidoRepository pedidoRepository,
-                         ClienteRepository clienteRepository,
-                         CalculadoraPreco calculadoraPreco) {
+            ClienteRepository clienteRepository,
+            CalculadoraPreco calculadoraPreco) {
         this.pedidoRepository = pedidoRepository;
         this.clienteRepository = clienteRepository;
         this.calculadoraPreco = calculadoraPreco;
@@ -68,31 +68,28 @@ public class PedidoService {
         for (ItemPedido item : itens) {
             if (item.getQuantidade() < 1) {
                 throw new IllegalArgumentException(
-                    "Quantidade inválida para o produto id=" + item.getItem().getId());
+                        "Quantidade inválida para o produto id=" + item.getItem().getId());
             }
         }
 
-        Cliente cliente = clienteRepository.buscarPorCpf(clienteCpf);
-        if (cliente == null) {
-            throw new IllegalArgumentException("Cliente não encontrado para CPF: " + clienteCpf);
-        }
+        Cliente cliente = clienteRepository.recuperaPorCpf(clienteCpf)
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado para CPF: " + clienteCpf));
 
         // ── Calcula preço ──────────────────────────────────────
         ResultadoCalculo preco = calculadoraPreco.calcular(itens);
 
         // ── Monta a entidade Pedido ────────────────────────────
         Pedido pedido = new Pedido(
-            0L,
-            cliente,
-            null,
-            itens,
-            Pedido.Status.NOVO,
-            preco.valor(),
-            preco.impostos(),
-            preco.desconto(),
-            preco.valorCobrado(),
-            enderecoEntrega
-        );
+                0L,
+                cliente,
+                null,
+                itens,
+                Pedido.Status.NOVO,
+                preco.valor(),
+                preco.impostos(),
+                preco.desconto(),
+                preco.valorCobrado(),
+                enderecoEntrega);
 
         return pedidoRepository.criar(pedido);
     }
@@ -106,16 +103,13 @@ public class PedidoService {
      * Pedidos PAGO ou posteriores não podem ser cancelados.
      */
     public Pedido cancelar(long id, String canceladoPor) {
-        Pedido pedido = pedidoRepository.buscarPorId(id);
-
-        if (pedido == null) {
-            throw new RuntimeException("Pedido não encontrado");
-        }
+        Pedido pedido = pedidoRepository.recuperaPorId(id)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
 
         if (pedido.getStatus() != Pedido.Status.NOVO &&
-            pedido.getStatus() != Pedido.Status.APROVADO) {
+                pedido.getStatus() != Pedido.Status.APROVADO) {
             throw new RuntimeException(
-                "Pedido não pode ser cancelado pois está com status: " + pedido.getStatus());
+                    "Pedido não pode ser cancelado pois está com status: " + pedido.getStatus());
         }
 
         pedido.setStatus(Pedido.Status.CANCELADO);

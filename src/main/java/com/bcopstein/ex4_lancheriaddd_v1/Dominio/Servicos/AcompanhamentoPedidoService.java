@@ -44,7 +44,7 @@ public class AcompanhamentoPedidoService {
     public Pedido consultarStatus(long pedidoId, String clienteCpf) {
 
         // ── Valida existência ─────────────────────────────────────────────────
-        Pedido pedido = pedidoRepository.buscarPorId(pedidoId);
+        Pedido pedido = pedidoRepository.recuperaPorId(pedidoId).orElse(null);
         if (pedido == null) {
             throw new IllegalArgumentException(
                 "Pedido não encontrado para o número: " + pedidoId);
