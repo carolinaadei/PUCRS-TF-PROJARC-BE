@@ -24,4 +24,7 @@ public interface PedidoRepository {
 
     /** Persiste mudanças em um pedido existente (status, cancelamento, etc.). */
     void salvar(Pedido pedido);
+
+    /** Busca pedidos com status ENTREGUE dentro do intervalo informado. */
+    List<Pedido> buscarEntreguesEntre(LocalDateTime inicio, LocalDateTime fim);
 }

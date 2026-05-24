@@ -22,6 +22,8 @@ import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Produto;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Receita;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.CalculadoraPreco;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.CalculadoraPreco.ResultadoCalculo;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.PedidoService;
 
 /**
@@ -38,6 +40,9 @@ class PedidoServiceTest {
 
     @Mock
     private ClienteRepository clienteRepository;
+
+    @Mock
+    private CalculadoraPreco calculadoraPreco;
 
     @InjectMocks
     private PedidoService pedidoService;
@@ -66,6 +71,7 @@ class PedidoServiceTest {
     void submeter_dadosValidos_criaPedidoNovo() {
         // Arrange
         when(clienteRepository.buscarPorCpf("9001")).thenReturn(clienteValido);
+        when(calculadoraPreco.calcular(any())).thenReturn(new ResultadoCalculo(11000, 1100, 0, 12100));
         when(pedidoRepository.criar(any(Pedido.class))).thenAnswer(inv -> {
             Pedido p = inv.getArgument(0);
             p.setId(10L);

@@ -11,6 +11,7 @@ import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.CalculadoraPreco.ResultadoCalculo;
 
 /**
  * Serviço de domínio responsável pelas operações sobre Pedido.
@@ -30,12 +31,15 @@ public class PedidoService {
 
     private final PedidoRepository pedidoRepository;
     private final ClienteRepository clienteRepository;
+    private final CalculadoraPreco calculadoraPreco;
 
     @Autowired
     public PedidoService(PedidoRepository pedidoRepository,
-                         ClienteRepository clienteRepository) {
+                         ClienteRepository clienteRepository,
+                         CalculadoraPreco calculadoraPreco) {
         this.pedidoRepository = pedidoRepository;
         this.clienteRepository = clienteRepository;
+        this.calculadoraPreco = calculadoraPreco;
     }
 
     // ─────────────────────────────────────────────────────────
@@ -73,19 +77,20 @@ public class PedidoService {
             throw new IllegalArgumentException("Cliente não encontrado para CPF: " + clienteCpf);
         }
 
+        // ── Calcula preço ──────────────────────────────────────
+        ResultadoCalculo preco = calculadoraPreco.calcular(itens);
+
         // ── Monta a entidade Pedido ────────────────────────────
-        // ID 0 = ainda não persistido; o repositório devolve o ID gerado pelo BD.
-        // Valor/impostos/desconto são zerados: serão calculados na etapa de aprovação.
         Pedido pedido = new Pedido(
             0L,
             cliente,
-            null,           // data_hora_pagamento — ainda sem pagamento
+            null,
             itens,
             Pedido.Status.NOVO,
-            0.0,            // valor — calculado na aprovação
-            0.0,            // impostos — calculado na aprovação
-            0.0,            // desconto — calculado na aprovação
-            0.0,            // valorCobrado — calculado na aprovação
+            preco.valor(),
+            preco.impostos(),
+            preco.desconto(),
+            preco.valorCobrado(),
             enderecoEntrega
         );
 
