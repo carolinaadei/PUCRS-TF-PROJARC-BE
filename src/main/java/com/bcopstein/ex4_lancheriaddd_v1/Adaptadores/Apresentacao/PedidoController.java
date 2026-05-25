@@ -39,11 +39,12 @@ import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.PedidoResponse;
 @RestController
 @RequestMapping("/pedidos")
 public class PedidoController {
+
+    private final SubmeterPedidoUC submeterPedidoUC;
     private final CancelarPedidoUC cancelarPedidoUC;
     private final ListarPedidosEntreguesUC listarPedidosEntreguesUC;
     private final ListarPedidosClienteUC listarPedidosClienteUC;
     private final AcompanharPedidoUC acompanharPedidoUC;
-    private final SubmeterPedidoUC submeterPedidoUC;
 
     public PedidoController(CancelarPedidoUC cancelarPedidoUC,
             ListarPedidosEntreguesUC listarPedidosEntreguesUC,
@@ -86,11 +87,6 @@ public class PedidoController {
         return submeterPedidoUC.run(request);
     }
 
-    /**
-     * POST /pedidos/{id}/cancelar?canceladoPor=cliente
-     *
-     * Preservado do PedidoController original.
-     */
     @PostMapping("/{id}/cancelar")
     @CrossOrigin("*")
     public CancelarPedidoResponse cancelarPedido(

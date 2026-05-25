@@ -87,13 +87,16 @@ VALUES (3, '9001', 'ENTREGUE', 5500, 550, 0, 6050, '2026-05-01 14:30:00') ON CON
 INSERT INTO itens_pedido (id, pedido_id, produto_id, quantidade)
 VALUES (3, 3, 1, 1) ON CONFLICT DO NOTHING;
 
+-- Histórico de status do pedido 1 (APROVADO)
 INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (1, 'NOVO',     '2026-05-14 10:00:00', 'cliente') ON CONFLICT DO NOTHING;
 INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (1, 'APROVADO', '2026-05-14 10:05:00', 'sistema') ON CONFLICT DO NOTHING;
 
+-- Histórico de status do pedido 2 (PAGO)
 INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (2, 'NOVO',     '2026-05-01 14:00:00', 'cliente') ON CONFLICT DO NOTHING;
 INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (2, 'APROVADO', '2026-05-01 14:10:00', 'sistema') ON CONFLICT DO NOTHING;
 INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (2, 'PAGO',     '2026-05-01 14:30:00', 'cliente') ON CONFLICT DO NOTHING;
 
+-- Histórico de status do pedido 3 (ENTREGUE)
 INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (3, 'NOVO',       '2026-05-01 13:00:00', 'cliente') ON CONFLICT DO NOTHING;
 INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (3, 'APROVADO',   '2026-05-01 13:05:00', 'sistema') ON CONFLICT DO NOTHING;
 INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (3, 'PAGO',       '2026-05-01 13:30:00', 'cliente') ON CONFLICT DO NOTHING;
