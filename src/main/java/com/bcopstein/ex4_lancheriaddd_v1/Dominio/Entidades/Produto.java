@@ -38,8 +38,6 @@ public class Produto {
             throw new IllegalArgumentException("Preco invalido: " + preco);
         if (descricao == null || descricao.length() == 0)
             throw new IllegalArgumentException("Descricao invalida");
-        if (receita == null)
-            throw new IllegalArgumentException("Receita invalida");
         this.id = id;
         this.descricao = descricao;
         this.receita = receita;

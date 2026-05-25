@@ -12,40 +12,39 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoStatusHistoricoRepository;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoStatusRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.PedidoStatusHistorico;
 
 @Primary
 @Service
 public class CozinhaService implements ICozinhaService {
+
+    private final PedidoRepository pedidoRepository;
+    private final PedidoStatusRepository statusRepository;
     private Queue<Pedido> filaEntrada;
     private Pedido emPreparacao;
     private Queue<Pedido> filaSaida;
     private ScheduledExecutorService scheduler;
 
-    private PedidoRepository pedidoRepository;
-    private PedidoStatusHistoricoRepository historicoRepository;
-
     @Autowired
     public CozinhaService(PedidoRepository pedidoRepository,
-                          PedidoStatusHistoricoRepository historicoRepository) {
+                          PedidoStatusRepository statusRepository) {
         this.pedidoRepository = pedidoRepository;
-        this.historicoRepository = historicoRepository;
-        filaEntrada = new LinkedBlockingQueue<Pedido>();
-        emPreparacao = null;
-        filaSaida = new LinkedBlockingQueue<Pedido>();
-        scheduler = Executors.newSingleThreadScheduledExecutor();
+        this.statusRepository = statusRepository;
+        this.filaEntrada = new LinkedBlockingQueue<>();
+        this.emPreparacao = null;
+        this.filaSaida = new LinkedBlockingQueue<>();
+        this.scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
     private synchronized void colocaEmPreparacao(Pedido pedido) {
         pedido.setStatus(Pedido.Status.PREPARACAO);
         pedidoRepository.salvar(pedido);
-        historicoRepository.salvar(new PedidoStatusHistorico(
+        statusRepository.registrar(new PedidoStatusHistorico(
             pedido.getId(), Pedido.Status.PREPARACAO, LocalDateTime.now(), "cozinha"
         ));
         emPreparacao = pedido;
-        System.out.println("Pedido em preparacao: " + pedido.getId());
         scheduler.schedule(() -> pedidoPronto(), 5, TimeUnit.SECONDS);
     }
 
@@ -53,11 +52,10 @@ public class CozinhaService implements ICozinhaService {
     public synchronized void chegadaDePedido(Pedido p) {
         p.setStatus(Pedido.Status.AGUARDANDO);
         pedidoRepository.salvar(p);
-        historicoRepository.salvar(new PedidoStatusHistorico(
+        statusRepository.registrar(new PedidoStatusHistorico(
             p.getId(), Pedido.Status.AGUARDANDO, LocalDateTime.now(), "cozinha"
         ));
         filaEntrada.add(p);
-        System.out.println("Pedido na fila de entrada: " + p.getId());
         if (emPreparacao == null) {
             colocaEmPreparacao(filaEntrada.poll());
         }
@@ -67,15 +65,40 @@ public class CozinhaService implements ICozinhaService {
     public synchronized void pedidoPronto() {
         emPreparacao.setStatus(Pedido.Status.PRONTO);
         pedidoRepository.salvar(emPreparacao);
-        historicoRepository.salvar(new PedidoStatusHistorico(
+        statusRepository.registrar(new PedidoStatusHistorico(
             emPreparacao.getId(), Pedido.Status.PRONTO, LocalDateTime.now(), "cozinha"
         ));
-        filaSaida.add(emPreparacao);
-        System.out.println("Pedido na fila de saida: " + emPreparacao.getId());
+
+        Pedido pronto = emPreparacao;
+        filaSaida.add(pronto);
         emPreparacao = null;
+
+        scheduler.schedule(() -> iniciarTransporte(pronto), 1, TimeUnit.SECONDS);
+
         if (!filaEntrada.isEmpty()) {
             Pedido prox = filaEntrada.poll();
             scheduler.schedule(() -> colocaEmPreparacao(prox), 1, TimeUnit.SECONDS);
         }
+    }
+
+    public Queue<Pedido> getFilaSaida() {
+        return filaSaida;
+    }
+
+    private void iniciarTransporte(Pedido pedido) {
+        pedido.setStatus(Pedido.Status.TRANSPORTE);
+        pedidoRepository.salvar(pedido);
+        statusRepository.registrar(new PedidoStatusHistorico(
+            pedido.getId(), Pedido.Status.TRANSPORTE, LocalDateTime.now(), "entregador"
+        ));
+        scheduler.schedule(() -> finalizar(pedido), 10, TimeUnit.SECONDS);
+    }
+
+    private void finalizar(Pedido pedido) {
+        pedido.setStatus(Pedido.Status.ENTREGUE);
+        pedidoRepository.salvar(pedido);
+        statusRepository.registrar(new PedidoStatusHistorico(
+            pedido.getId(), Pedido.Status.ENTREGUE, LocalDateTime.now(), "entregador"
+        ));
     }
 }

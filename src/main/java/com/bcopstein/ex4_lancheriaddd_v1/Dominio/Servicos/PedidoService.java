@@ -8,25 +8,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoStatusHistoricoRepository;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoStatusRepository;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.PedidoStatusHistorico;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.CalculadoraPreco.ResultadoCalculo;
 
 @Service
 public class PedidoService {
-    private PedidoRepository pedidoRepository;
-    private PedidoStatusHistoricoRepository historicoRepository;
-    private IPaymentService paymentService;
-    private ICozinhaService cozinhaService;
+
+    private final PedidoRepository pedidoRepository;
+    private final PedidoStatusRepository statusRepository;
+    private final CalculadoraPreco calculadoraPreco;
+    private final IPaymentService paymentService;
+    private final ICozinhaService cozinhaService;
 
     @Autowired
     public PedidoService(PedidoRepository pedidoRepository,
-                         PedidoStatusHistoricoRepository historicoRepository,
-                         IPaymentService paymentService,
-                         ICozinhaService cozinhaService) {
+            PedidoStatusRepository statusRepository,
+            CalculadoraPreco calculadoraPreco,
+            IPaymentService paymentService,
+            ICozinhaService cozinhaService) {
         this.pedidoRepository = pedidoRepository;
-        this.historicoRepository = historicoRepository;
+        this.statusRepository = statusRepository;
+        this.calculadoraPreco = calculadoraPreco;
         this.paymentService = paymentService;
         this.cozinhaService = cozinhaService;
     }
@@ -41,11 +47,31 @@ public class PedidoService {
         if (itens == null || itens.isEmpty()) {
             throw new IllegalArgumentException("O pedido deve conter ao menos um item");
         }
+        for (ItemPedido item : itens) {
+            if (item.getQuantidade() < 1) {
+                throw new IllegalArgumentException(
+                        "Quantidade inválida para o produto id=" + item.getItem().getId());
+            }
+        }
 
-        Pedido pedido = new Pedido(0, null, null, itens, Pedido.Status.NOVO, 0, 0, 0, 0, enderecoEntrega);
+        ResultadoCalculo preco = calculadoraPreco.calcular(itens);
+        Cliente cliente = new Cliente(null, null, clienteCpf, null, null, null, null);
+
+        Pedido pedido = new Pedido(
+                0L,
+                cliente,
+                null,
+                itens,
+                Pedido.Status.NOVO,
+                preco.valor(),
+                preco.impostos(),
+                preco.desconto(),
+                preco.valorCobrado(),
+                enderecoEntrega);
+        
         Pedido criado = pedidoRepository.criar(pedido);
 
-        historicoRepository.salvar(new PedidoStatusHistorico(
+        statusRepository.registrar(new PedidoStatusHistorico(
             criado.getId(), Pedido.Status.NOVO, LocalDateTime.now(), "cliente"
         ));
 
@@ -53,11 +79,8 @@ public class PedidoService {
     }
 
     public Pedido cancelar(long id, String canceladoPor) {
-        Pedido pedido = pedidoRepository.buscarPorId(id);
-
-        if (pedido == null) {
-            throw new NoSuchElementException("Pedido não encontrado");
-        }
+        Pedido pedido = pedidoRepository.recuperaPorId(id)
+                .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado"));
 
         if (pedido.getStatus() != Pedido.Status.NOVO &&
             pedido.getStatus() != Pedido.Status.APROVADO) {
@@ -69,7 +92,7 @@ public class PedidoService {
         pedido.setDataHoraCancelamento(LocalDateTime.now());
         pedidoRepository.salvar(pedido);
 
-        historicoRepository.salvar(new PedidoStatusHistorico(
+        statusRepository.registrar(new PedidoStatusHistorico(
             pedido.getId(), Pedido.Status.CANCELADO, LocalDateTime.now(), canceladoPor
         ));
 
@@ -77,14 +100,12 @@ public class PedidoService {
     }
 
     public Pedido pagar(long id) {
-        Pedido pedido = pedidoRepository.buscarPorId(id);
-
-        if (pedido == null) {
-            throw new NoSuchElementException("Pedido não encontrado");
-        }
+        Pedido pedido = pedidoRepository.recuperaPorId(id)
+                .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado"));
 
         if (pedido.getStatus() != Pedido.Status.APROVADO) {
-            throw new IllegalArgumentException("Pedido não pode ser pago pois está com status: " + pedido.getStatus());
+            throw new IllegalArgumentException(
+                    "Pedido não pode ser pago pois está com status: " + pedido.getStatus());
         }
 
         boolean pagamentoAprovado = paymentService.processPayment(pedido.getId(), pedido.getValorCobrado());
@@ -97,12 +118,12 @@ public class PedidoService {
         pedido.setDataHoraPagamento(LocalDateTime.now());
         pedidoRepository.salvar(pedido);
 
-        historicoRepository.salvar(new PedidoStatusHistorico(
+        statusRepository.registrar(new PedidoStatusHistorico(
             pedido.getId(), Pedido.Status.PAGO, LocalDateTime.now(), "cliente"
         ));
 
-        Pedido pedidoSalvo = pedidoRepository.buscarPorId(pedido.getId());
-        cozinhaService.chegadaDePedido(pedido);
+        Pedido pedidoSalvo = pedidoRepository.recuperaPorId(pedido.getId()).orElse(pedido);
+        cozinhaService.chegadaDePedido(pedidoSalvo);
 
         return pedidoSalvo;
     }

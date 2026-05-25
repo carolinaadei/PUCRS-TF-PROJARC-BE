@@ -7,7 +7,7 @@ import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.CabecalhoCardapioRe
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.CardapioService;
 
 @Component
-public class RecuperaListaCardapiosUC {
+public class RecuperaListaCardapiosUC implements IRecuperaListaCardapiosUC {
     private CardapioService cardapioService;
 
     @Autowired

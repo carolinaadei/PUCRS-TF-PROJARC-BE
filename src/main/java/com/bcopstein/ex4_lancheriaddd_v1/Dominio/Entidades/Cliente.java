@@ -1,48 +1,42 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
-@Entity
-@Table(name = "clientes")
 public class Cliente {
 
-    @Id
-    @Column(name = "cpf", nullable = false, length = 14)
-    private String cpf;
-
-    @Column(name = "nome")
+    private Long id;
     private String nome;
-
-    @Column(name = "celular")
+    private String cpf;
     private String celular;
-
-    @Column(name = "endereco")
     private String endereco;
-
-    @Column(name = "email")
     private String email;
+    private String senhaHash;
 
-    // Construtor vazio obrigatório para JPA
-    protected Cliente() {
-    }
+    public Cliente(Long id,
+                   String nome,
+                   String cpf,
+                   String celular,
+                   String endereco,
+                   String email,
+                   String senhaHash) {
 
-    public Cliente(String cpf, String nome, String celular, String endereco, String email) {
-        this.cpf = cpf;
+        this.id = id;
         this.nome = nome;
+        this.cpf = cpf;
         this.celular = celular;
         this.endereco = endereco;
         this.email = email;
+        this.senhaHash = senhaHash;
     }
 
-    public String getCpf() {
-        return cpf;
+    public Long getId() {
+        return id;
     }
 
     public String getNome() {
         return nome;
+    }
+
+    public String getCpf() {
+        return cpf;
     }
 
     public String getCelular() {
@@ -55,5 +49,9 @@ public class Cliente {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getSenhaHash() {
+        return senhaHash;
     }
 }
