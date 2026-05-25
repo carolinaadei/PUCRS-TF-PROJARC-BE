@@ -6,7 +6,7 @@ spring:
     password: ${DATABASE_PASSWORD}
   sql:
     init:
-      mode: always # executa schema.sql no boot
+      mode: always
       schema-locations: classpath:db/schema.sql
       data-locations: classpath:db/data.sql
   jpa:

@@ -18,6 +18,7 @@ import java.util.Optional;
 @Primary
 @Component
 public class PedidoRepositoryJPA implements PedidoRepository {
+
     private final PedidoJpaRepository pedidoJpa;
     private final ClienteJpaRepository clienteJpa;
     private final ProdutoJpaRepository produtoJpa;
@@ -34,9 +35,9 @@ public class PedidoRepositoryJPA implements PedidoRepository {
     @Override
     @Transactional
     public Pedido criar(Pedido pedido) {
-        ClienteEntity clienteEntity = clienteJpa.findById(pedido.getCliente().getCpf())
-                .orElseThrow(
-                        () -> new IllegalArgumentException("Cliente não encontrado: " + pedido.getCliente().getCpf()));
+        ClienteEntity clienteEntity = clienteJpa.findByCpf(pedido.getCliente().getCpf())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Cliente não encontrado: " + pedido.getCliente().getCpf()));
 
         PedidoEntity entity = new PedidoEntity();
         entity.setCliente(clienteEntity);
@@ -50,8 +51,8 @@ public class PedidoRepositoryJPA implements PedidoRepository {
 
         List<ItemPedidoEntity> itens = pedido.getItens().stream().map(item -> {
             ProdutoEntity produtoEntity = produtoJpa.findById(item.getItem().getId())
-                    .orElseThrow(
-                            () -> new IllegalArgumentException("Produto não encontrado: " + item.getItem().getId()));
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Produto não encontrado: " + item.getItem().getId()));
             ItemPedidoEntity itemEntity = new ItemPedidoEntity();
             itemEntity.setPedido(entity);
             itemEntity.setProduto(produtoEntity);
@@ -65,13 +66,15 @@ public class PedidoRepositoryJPA implements PedidoRepository {
 
     @Override
     @Transactional
-    public Pedido salvar(Pedido pedido) {
+    public void salvar(Pedido pedido) {
         PedidoEntity entity = pedidoJpa.findById(pedido.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado: " + pedido.getId()));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Pedido não encontrado: " + pedido.getId()));
         entity.setStatus(pedido.getStatus());
         entity.setCanceladoPor(pedido.getCanceladoPor());
         entity.setDataHoraCancelamento(pedido.getDataHoraCancelamento());
-        return toDomain(pedidoJpa.save(entity));
+        entity.setDataHoraPagamento(pedido.getDataHoraPagamento());
+        pedidoJpa.save(entity);
     }
 
     @Override
@@ -95,17 +98,24 @@ public class PedidoRepositoryJPA implements PedidoRepository {
 
     @Override
     public List<Pedido> buscarEntreguesEntre(LocalDateTime inicio, LocalDateTime fim) {
-        return pedidoJpa.findByStatusAndDataHoraPagamentoBetween(Pedido.Status.ENTREGUE, inicio, fim)
+        return pedidoJpa.findEntreguesByDataHora(Pedido.Status.ENTREGUE, inicio, fim)
+                .stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    public List<Pedido> buscarEntreguesPorClienteEntre(
+            String clienteCpf, LocalDateTime inicio, LocalDateTime fim) {
+        return pedidoJpa.findEntreguesByClienteAndDataHora(
+                Pedido.Status.ENTREGUE, clienteCpf, inicio, fim)
                 .stream().map(this::toDomain).toList();
     }
 
     private Pedido toDomain(PedidoEntity e) {
-        Cliente cliente = new Cliente(
-                e.getCliente().getCpf(),
-                e.getCliente().getNome(),
-                e.getCliente().getCelular(),
-                e.getCliente().getEndereco(),
-                e.getCliente().getEmail());
+        Cliente cliente = e.getCliente() != null
+                ? new Cliente(e.getCliente().getId(), e.getCliente().getNome(),
+                        e.getCliente().getCpf(), e.getCliente().getCelular(),
+                        e.getCliente().getEndereco(), e.getCliente().getEmail(), null)
+                : null;
 
         List<ItemPedido> itens = e.getItens() == null ? List.of() : e.getItens().stream().map(item -> {
             ProdutoEntity p = item.getProduto();
@@ -127,11 +137,5 @@ public class PedidoRepositoryJPA implements PedidoRepository {
         pedido.setCanceladoPor(e.getCanceladoPor());
         pedido.setDataHoraCancelamento(e.getDataHoraCancelamento());
         return pedido;
-    }
-
-    @Override
-    public List<Pedido> buscarEntreguesPorClienteEntre(String clienteCpf, LocalDateTime inicio, LocalDateTime fim) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'buscarEntreguesPorClienteEntre'");
     }
 }

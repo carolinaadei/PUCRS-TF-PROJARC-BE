@@ -6,7 +6,8 @@ import java.util.List;
 /**
  * Entidade de domínio que representa um pedido.
  *
- * Alteração em relação à versão anterior: adição do campo {@code enderecoEntrega},
+ * Alteração em relação à versão anterior: adição do campo
+ * {@code enderecoEntrega},
  * necessário para a funcionalidade de Submissão de Pedido (Task).
  * Os demais campos e construtores foram preservados.
  */
@@ -41,9 +42,9 @@ public class Pedido {
 
     // ── Construtor completo (novo — inclui enderecoEntrega) ──────────────────
     public Pedido(long id, Cliente cliente, LocalDateTime dataHoraPagamento,
-                  List<ItemPedido> itens, Status status,
-                  double valor, double impostos, double desconto, double valorCobrado,
-                  String enderecoEntrega) {
+            List<ItemPedido> itens, Status status,
+            double valor, double impostos, double desconto, double valorCobrado,
+            String enderecoEntrega) {
         this.id = id;
         this.cliente = cliente;
         this.dataHoraPagamento = dataHoraPagamento;
@@ -59,39 +60,83 @@ public class Pedido {
     // ── Construtor de compatibilidade (sem enderecoEntrega) ──────────────────
     // Mantém retrocompatibilidade com PedidoRepositoryJDBC existente.
     public Pedido(long id, Cliente cliente, LocalDateTime dataHoraPagamento,
-                  List<ItemPedido> itens, Status status,
-                  double valor, double impostos, double desconto, double valorCobrado) {
+            List<ItemPedido> itens, Status status,
+            double valor, double impostos, double desconto, double valorCobrado) {
         this(id, cliente, dataHoraPagamento, itens, status,
-             valor, impostos, desconto, valorCobrado, null);
+                valor, impostos, desconto, valorCobrado, null);
     }
 
     // ── Getters / Setters ────────────────────────────────────────────────────
 
-    public long getId() { return id; }
-    public void setId(long id) { this.id = id; }
+    public long getId() {
+        return id;
+    }
 
-    public Cliente getCliente() { return cliente; }
+    public void setId(long id) {
+        this.id = id;
+    }
 
-    public LocalDateTime getDataHoraPagamento() { return dataHoraPagamento; }
+    public Cliente getCliente() {
+        return cliente;
+    }
 
-    public List<ItemPedido> getItens() { return itens; }
+    public LocalDateTime getDataHoraPagamento() {
+        return dataHoraPagamento;
+    }
 
-    public Status getStatus() { return status; }
-    public void setStatus(Status status) { this.status = status; }
+    public List<ItemPedido> getItens() {
+        return itens;
+    }
 
-    public double getValor() { return valor; }
-    public double getImpostos() { return impostos; }
-    public double getDesconto() { return desconto; }
-    public double getValorCobrado() { return valorCobrado; }
+    public Status getStatus() {
+        return status;
+    }
 
-    public String getCanceladoPor() { return canceladoPor; }
-    public void setCanceladoPor(String canceladoPor) { this.canceladoPor = canceladoPor; }
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 
-    public LocalDateTime getDataHoraCancelamento() { return dataHoraCancelamento; }
+    public double getValor() {
+        return valor;
+    }
+
+    public double getImpostos() {
+        return impostos;
+    }
+
+    public double getDesconto() {
+        return desconto;
+    }
+
+    public double getValorCobrado() {
+        return valorCobrado;
+    }
+
+    public String getCanceladoPor() {
+        return canceladoPor;
+    }
+
+    public void setCanceladoPor(String canceladoPor) {
+        this.canceladoPor = canceladoPor;
+    }
+
+    public LocalDateTime getDataHoraCancelamento() {
+        return dataHoraCancelamento;
+    }
+
     public void setDataHoraCancelamento(LocalDateTime dataHoraCancelamento) {
         this.dataHoraCancelamento = dataHoraCancelamento;
     }
 
-    public String getEnderecoEntrega() { return enderecoEntrega; }
-    public void setEnderecoEntrega(String enderecoEntrega) { this.enderecoEntrega = enderecoEntrega; }
+    public void setDataHoraPagamento(LocalDateTime dataHoraPagamento) {
+        this.dataHoraPagamento = dataHoraPagamento;
+    }
+
+    public String getEnderecoEntrega() {
+        return enderecoEntrega;
+    }
+
+    public void setEnderecoEntrega(String enderecoEntrega) {
+        this.enderecoEntrega = enderecoEntrega;
+    }
 }

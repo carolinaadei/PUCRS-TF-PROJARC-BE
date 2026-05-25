@@ -6,12 +6,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoStatusRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.PedidoStatusHistorico;
 
+@Primary
 @Service
 public class CozinhaService implements ICozinhaService {
 

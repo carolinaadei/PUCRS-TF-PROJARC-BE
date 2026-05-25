@@ -3,6 +3,7 @@ package com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.Entidades;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class PedidoEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cliente_cpf", nullable = false)
+    @JoinColumn(name = "cliente_cpf", referencedColumnName = "cpf", nullable = false)
     private ClienteEntity cliente;
 
     private LocalDateTime dataHoraPagamento;
@@ -45,4 +46,7 @@ public class PedidoEntity {
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemPedidoEntity> itens;
+
+    @OneToMany(mappedBy = "pedido", fetch = FetchType.LAZY)
+    private List<PedidoStatusHistoricoEntity> statusHistorico;
 }

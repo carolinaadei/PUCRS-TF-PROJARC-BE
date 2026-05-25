@@ -7,8 +7,11 @@ import java.util.Optional;
 
 public interface PedidoRepository {
 
-    /** Persiste mudanças em um pedido existente (status, cancelamento, etc.). */
-    Pedido salvar(Pedido pedido);
+    /** Persiste um novo pedido e retorna a instância com o ID gerado. */
+    Pedido criar(Pedido pedido);
+
+    /** Persiste mudanças em um pedido existente (status, cancelamento, pagamento, etc.). */
+    void salvar(Pedido pedido);
 
     Optional<Pedido> recuperaPorId(long id);
 
@@ -16,10 +19,6 @@ public interface PedidoRepository {
 
     void atualizarStatus(long id, Pedido.Status status);
 
-    /** Persiste um novo pedido e retorna a instância com o ID gerado. */
-    Pedido criar(Pedido pedido);
-
-    /** Busca pedidos com status ENTREGUE dentro do intervalo informado. */
     List<Pedido> buscarEntreguesEntre(LocalDateTime inicio, LocalDateTime fim);
 
     List<Pedido> buscarEntreguesPorClienteEntre(String clienteCpf, LocalDateTime inicio, LocalDateTime fim);

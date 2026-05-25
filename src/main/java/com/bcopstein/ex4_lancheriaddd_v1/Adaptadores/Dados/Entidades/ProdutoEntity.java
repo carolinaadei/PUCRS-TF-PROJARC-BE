@@ -2,6 +2,7 @@ package com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.Entidades;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.util.List;
 
 @Entity
