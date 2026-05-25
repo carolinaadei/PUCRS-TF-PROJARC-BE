@@ -55,7 +55,6 @@ public class PedidoService {
      * @return Pedido criado e persistido com ID gerado
      */
     public Pedido submeter(String clienteCpf, String enderecoEntrega, List<ItemPedido> itens) {
-        // ── Validações de domínio ──────────────────────────────
         if (clienteCpf == null || clienteCpf.isBlank()) {
             throw new IllegalArgumentException("CPF do cliente é obrigatório");
         }
@@ -122,11 +121,24 @@ public class PedidoService {
 
     public List<Pedido> listarEntreguesEntre(LocalDateTime inicio, LocalDateTime fim) {
         if (inicio == null || fim == null) {
-            throw new RuntimeException("Datas de início e fim são obrigatórias");
+            throw new IllegalArgumentException("Datas de início e fim são obrigatórias");
         }
         if (inicio.isAfter(fim)) {
-            throw new RuntimeException("Data de início não pode ser posterior à data de fim");
+            throw new IllegalArgumentException("Data de início não pode ser posterior à data de fim");
         }
         return pedidoRepository.buscarEntreguesEntre(inicio, fim);
+    }
+
+    public List<Pedido> listarEntreguesPorClienteEntre(String clienteCpf, LocalDateTime inicio, LocalDateTime fim) {
+        if (clienteCpf == null || clienteCpf.isBlank()) {
+            throw new IllegalArgumentException("CPF do cliente é obrigatório");
+        }
+        if (inicio == null || fim == null) {
+            throw new IllegalArgumentException("Datas de início e fim são obrigatórias");
+        }
+        if (inicio.isAfter(fim)) {
+            throw new IllegalArgumentException("Data de início não pode ser posterior à data de fim");
+        }
+        return pedidoRepository.buscarEntreguesPorClienteEntre(clienteCpf, inicio, fim);
     }
 }

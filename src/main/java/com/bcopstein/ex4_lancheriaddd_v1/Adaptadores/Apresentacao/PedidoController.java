@@ -2,7 +2,6 @@ package com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Apresentacao;
 
 import org.springframework.http.HttpStatus;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -14,16 +13,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.AcompanharPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.CancelarPedidoUC;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ListarPedidosClienteUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ListarPedidosEntreguesUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.SubmeterPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Requests.SubmeterPedidoRequest;
-import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.AcompanhamentoPedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.CancelarPedidoResponse;
-import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.PedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.SubmeterPedidoResponse;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.AcompanhamentoPedidoResponse;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.PedidoResponse;
 
 /**
  * Adaptador de apresentação: Controller REST para operações sobre Pedido.
@@ -42,15 +43,18 @@ public class PedidoController {
     private final SubmeterPedidoUC submeterPedidoUC;
     private final CancelarPedidoUC cancelarPedidoUC;
     private final ListarPedidosEntreguesUC listarPedidosEntreguesUC;
+    private final ListarPedidosClienteUC listarPedidosClienteUC;
     private final AcompanharPedidoUC acompanharPedidoUC;
 
     public PedidoController(CancelarPedidoUC cancelarPedidoUC,
             ListarPedidosEntreguesUC listarPedidosEntreguesUC,
+            ListarPedidosClienteUC listarPedidosClienteUC,
             AcompanharPedidoUC acompanharPedidoUC,
             SubmeterPedidoUC submeterPedidoUC) {
 
         this.cancelarPedidoUC = cancelarPedidoUC;
         this.listarPedidosEntreguesUC = listarPedidosEntreguesUC;
+        this.listarPedidosClienteUC = listarPedidosClienteUC;
         this.acompanharPedidoUC = acompanharPedidoUC;
         this.submeterPedidoUC = submeterPedidoUC;
     }
@@ -94,15 +98,18 @@ public class PedidoController {
     @GetMapping("/entregues")
     @CrossOrigin("*")
     public List<PedidoResponse> listarEntregues(
-            @RequestParam String inicio,
-            @RequestParam String fim) {
-        try {
-            LocalDateTime dataInicio = LocalDateTime.parse(inicio);
-            LocalDateTime dataFim = LocalDateTime.parse(fim);
-            return listarPedidosEntreguesUC.run(dataInicio, dataFim);
-        } catch (DateTimeParseException e) {
-            throw new RuntimeException("Formato de data inválido. Use o formato: yyyy-MM-ddTHH:mm:ss");
-        }
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim) {
+        return listarPedidosEntreguesUC.run(inicio, fim);
+    }
+
+    @GetMapping("/entregues/cliente")
+    @CrossOrigin("*")
+    public List<PedidoResponse> listarEntreguesPorCliente(
+            @RequestParam String cpf,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim) {
+        return listarPedidosClienteUC.run(cpf, inicio, fim);
     }
 
     @GetMapping("/{id}/status")

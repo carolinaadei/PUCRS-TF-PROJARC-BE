@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PedidoRepository {
+
     /** Persiste mudanças em um pedido existente (status, cancelamento, etc.). */
     Pedido salvar(Pedido pedido);
 
@@ -20,4 +21,6 @@ public interface PedidoRepository {
 
     /** Busca pedidos com status ENTREGUE dentro do intervalo informado. */
     List<Pedido> buscarEntreguesEntre(LocalDateTime inicio, LocalDateTime fim);
+
+    List<Pedido> buscarEntreguesPorClienteEntre(String clienteCpf, LocalDateTime inicio, LocalDateTime fim);
 }
