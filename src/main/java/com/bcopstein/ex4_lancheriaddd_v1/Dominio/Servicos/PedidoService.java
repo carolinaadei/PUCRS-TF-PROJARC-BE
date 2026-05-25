@@ -11,6 +11,7 @@ import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.CalculadoraPreco.ResultadoCalculo;
 
 /**
  * Serviço de domínio responsável pelas operações sobre Pedido.
@@ -30,12 +31,15 @@ public class PedidoService {
 
     private final PedidoRepository pedidoRepository;
     private final ClienteRepository clienteRepository;
+    private final CalculadoraPreco calculadoraPreco;
 
     @Autowired
     public PedidoService(PedidoRepository pedidoRepository,
-            ClienteRepository clienteRepository) {
+            ClienteRepository clienteRepository,
+            CalculadoraPreco calculadoraPreco) {
         this.pedidoRepository = pedidoRepository;
         this.clienteRepository = clienteRepository;
+        this.calculadoraPreco = calculadoraPreco;
     }
 
     // ─────────────────────────────────────────────────────────
@@ -70,16 +74,20 @@ public class PedidoService {
         Cliente cliente = clienteRepository.recuperaPorCpf(clienteCpf)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado para CPF: " + clienteCpf));
 
+        // ── Calcula preço ──────────────────────────────────────
+        ResultadoCalculo preco = calculadoraPreco.calcular(itens);
+
+        // ── Monta a entidade Pedido ────────────────────────────
         Pedido pedido = new Pedido(
                 0L,
                 cliente,
                 null,
                 itens,
                 Pedido.Status.NOVO,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
+                preco.valor(),
+                preco.impostos(),
+                preco.desconto(),
+                preco.valorCobrado(),
                 enderecoEntrega);
 
         return pedidoRepository.criar(pedido);

@@ -85,23 +85,23 @@ INSERT INTO pedidos (id, cliente_cpf, status, valor, impostos, desconto, valor_c
 VALUES (3, '9001', 'ENTREGUE', 5500, 550, 0, 6050, '2026-05-01 14:30:00') ON CONFLICT DO NOTHING;
 
 INSERT INTO itens_pedido (id, pedido_id, produto_id, quantidade)
-VALUES (3, 3, 1, 1);
+VALUES (3, 3, 1, 1) ON CONFLICT DO NOTHING;
 
 -- Histórico de status do pedido 1 (APROVADO)
-INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (1, 'NOVO',     '2026-05-14 10:00:00', 'cliente');
-INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (1, 'APROVADO', '2026-05-14 10:05:00', 'sistema');
+INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) SELECT 1, 'NOVO',     '2026-05-14 10:00:00', 'cliente' WHERE NOT EXISTS (SELECT 1 FROM pedido_status_historico WHERE pedido_id = 1 AND status = 'NOVO'     AND data_hora = '2026-05-14 10:00:00');
+INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) SELECT 1, 'APROVADO', '2026-05-14 10:05:00', 'sistema' WHERE NOT EXISTS (SELECT 1 FROM pedido_status_historico WHERE pedido_id = 1 AND status = 'APROVADO' AND data_hora = '2026-05-14 10:05:00');
 
 -- Histórico de status do pedido 2 (PAGO)
-INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (2, 'NOVO',     '2026-05-01 14:00:00', 'cliente');
-INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (2, 'APROVADO', '2026-05-01 14:10:00', 'sistema');
-INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (2, 'PAGO',     '2026-05-01 14:30:00', 'cliente');
+INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) SELECT 2, 'NOVO',     '2026-05-01 14:00:00', 'cliente' WHERE NOT EXISTS (SELECT 1 FROM pedido_status_historico WHERE pedido_id = 2 AND status = 'NOVO'     AND data_hora = '2026-05-01 14:00:00');
+INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) SELECT 2, 'APROVADO', '2026-05-01 14:10:00', 'sistema' WHERE NOT EXISTS (SELECT 1 FROM pedido_status_historico WHERE pedido_id = 2 AND status = 'APROVADO' AND data_hora = '2026-05-01 14:10:00');
+INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) SELECT 2, 'PAGO',     '2026-05-01 14:30:00', 'cliente' WHERE NOT EXISTS (SELECT 1 FROM pedido_status_historico WHERE pedido_id = 2 AND status = 'PAGO'     AND data_hora = '2026-05-01 14:30:00');
 
 -- Histórico de status do pedido 3 (ENTREGUE)
-INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (3, 'NOVO',       '2026-05-01 13:00:00', 'cliente');
-INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (3, 'APROVADO',   '2026-05-01 13:05:00', 'sistema');
-INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (3, 'PAGO',       '2026-05-01 13:30:00', 'cliente');
-INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (3, 'AGUARDANDO', '2026-05-01 13:31:00', 'cozinha');
-INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (3, 'PREPARACAO', '2026-05-01 13:45:00', 'cozinha');
-INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (3, 'PRONTO',     '2026-05-01 14:10:00', 'cozinha');
-INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (3, 'TRANSPORTE', '2026-05-01 14:15:00', 'entregador');
-INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (3, 'ENTREGUE',   '2026-05-01 14:30:00', 'entregador');
+INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) SELECT 3, 'NOVO',       '2026-05-01 13:00:00', 'cliente'    WHERE NOT EXISTS (SELECT 1 FROM pedido_status_historico WHERE pedido_id = 3 AND status = 'NOVO'       AND data_hora = '2026-05-01 13:00:00');
+INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) SELECT 3, 'APROVADO',   '2026-05-01 13:05:00', 'sistema'    WHERE NOT EXISTS (SELECT 1 FROM pedido_status_historico WHERE pedido_id = 3 AND status = 'APROVADO'   AND data_hora = '2026-05-01 13:05:00');
+INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) SELECT 3, 'PAGO',       '2026-05-01 13:30:00', 'cliente'    WHERE NOT EXISTS (SELECT 1 FROM pedido_status_historico WHERE pedido_id = 3 AND status = 'PAGO'       AND data_hora = '2026-05-01 13:30:00');
+INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) SELECT 3, 'AGUARDANDO', '2026-05-01 13:31:00', 'cozinha'    WHERE NOT EXISTS (SELECT 1 FROM pedido_status_historico WHERE pedido_id = 3 AND status = 'AGUARDANDO' AND data_hora = '2026-05-01 13:31:00');
+INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) SELECT 3, 'PREPARACAO', '2026-05-01 13:45:00', 'cozinha'    WHERE NOT EXISTS (SELECT 1 FROM pedido_status_historico WHERE pedido_id = 3 AND status = 'PREPARACAO' AND data_hora = '2026-05-01 13:45:00');
+INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) SELECT 3, 'PRONTO',     '2026-05-01 14:10:00', 'cozinha'    WHERE NOT EXISTS (SELECT 1 FROM pedido_status_historico WHERE pedido_id = 3 AND status = 'PRONTO'     AND data_hora = '2026-05-01 14:10:00');
+INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) SELECT 3, 'TRANSPORTE', '2026-05-01 14:15:00', 'entregador' WHERE NOT EXISTS (SELECT 1 FROM pedido_status_historico WHERE pedido_id = 3 AND status = 'TRANSPORTE' AND data_hora = '2026-05-01 14:15:00');
+INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) SELECT 3, 'ENTREGUE',   '2026-05-01 14:30:00', 'entregador' WHERE NOT EXISTS (SELECT 1 FROM pedido_status_historico WHERE pedido_id = 3 AND status = 'ENTREGUE'   AND data_hora = '2026-05-01 14:30:00');

@@ -40,6 +40,11 @@ create table if not exists produtos (
   preco bigint,
   indicacao_chef boolean not null default false
 );
+alter table produtos add column if not exists indicacao_chef boolean not null default false;
+
+alter table pedidos add column if not exists cancelado_por varchar(100);
+alter table pedidos add column if not exists data_hora_cancelamento timestamp;
+alter table pedidos add column if not exists endereco_entrega varchar(255);
 
 -- Tabela de relacionamento entre Produto e Receita
 create table if not exists produto_receita (
