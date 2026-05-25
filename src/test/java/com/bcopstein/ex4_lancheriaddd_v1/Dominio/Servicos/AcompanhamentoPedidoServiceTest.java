@@ -38,8 +38,8 @@ class AcompanhamentoPedidoServiceTest {
 
     @BeforeEach
     void setUp() {
-        clienteHuguinho = new Cliente("9001", "Huguinho Pato", "51985744566",
-                "Rua das Flores, 100", "huguinho@email.com");
+        clienteHuguinho = new Cliente(null, "Huguinho Pato", "9001", "51985744566",
+                "Rua das Flores, 100", "huguinho@email.com", null);
         pedidoAprovado = new Pedido(1L, clienteHuguinho, null, List.of(),
                 Pedido.Status.APROVADO, 5500, 550, 0, 6050);
     }

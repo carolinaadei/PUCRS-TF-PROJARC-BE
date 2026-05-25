@@ -15,8 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.ClienteRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoStatusRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Ingrediente;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
@@ -25,14 +25,10 @@ import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Produto;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Receita;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.CalculadoraPreco;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.CalculadoraPreco.ResultadoCalculo;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.ICozinhaService;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.IPaymentService;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.PedidoService;
 
-/**
- * Testes unitários para {@link PedidoService}.
- *
- * Estratégia: Mockito para isolar o serviço de domínio dos adaptadores.
- * Nenhuma dependência de banco de dados é usada.
- */
 @ExtendWith(MockitoExtension.class)
 class PedidoServiceTest {
 
@@ -40,10 +36,16 @@ class PedidoServiceTest {
         private PedidoRepository pedidoRepository;
 
         @Mock
-        private ClienteRepository clienteRepository;
+        private PedidoStatusRepository statusRepository;
 
         @Mock
         private CalculadoraPreco calculadoraPreco;
+
+        @Mock
+        private IPaymentService paymentService;
+
+        @Mock
+        private ICozinhaService cozinhaService;
 
         @InjectMocks
         private PedidoService pedidoService;
@@ -56,8 +58,8 @@ class PedidoServiceTest {
 
         @BeforeEach
         void setUp() {
-                clienteValido = new Cliente("9001", "Huguinho Pato", "51985744566",
-                                "Rua das Flores, 100", "huguinho@email.com");
+                clienteValido = new Cliente(null, "Huguinho Pato", "9001", "51985744566",
+                                "Rua das Flores, 100", "huguinho@email.com", null);
 
                 Receita receita = new Receita(1L, "Pizza calabresa",
                                 List.of(new Ingrediente(1L, "Disco de pizza")));
@@ -71,7 +73,6 @@ class PedidoServiceTest {
         @DisplayName("Deve criar pedido com status NOVO quando dados são válidos")
         void submeter_dadosValidos_criaPedidoNovo() {
                 // Arrange
-                when(clienteRepository.recuperaPorCpf("9001")).thenReturn(Optional.of(clienteValido));
                 when(calculadoraPreco.calcular(any())).thenReturn(new ResultadoCalculo(11000, 1100, 0, 12100));
                 when(pedidoRepository.criar(any(Pedido.class))).thenAnswer(inv -> {
                         Pedido p = inv.getArgument(0);
@@ -129,16 +130,6 @@ class PedidoServiceTest {
                 IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                                 () -> pedidoService.submeter("9001", "Rua A, 1", null));
                 assertTrue(ex.getMessage().contains("item"));
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção quando cliente não existe no cadastro")
-        void submeter_clienteNaoEncontrado_lancaExcecao() {
-                when(clienteRepository.recuperaPorCpf("9999")).thenReturn(Optional.empty());
-
-                IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                                () -> pedidoService.submeter("9999", "Rua A, 1", itensValidos));
-                assertTrue(ex.getMessage().contains("9999"));
         }
 
         @Test

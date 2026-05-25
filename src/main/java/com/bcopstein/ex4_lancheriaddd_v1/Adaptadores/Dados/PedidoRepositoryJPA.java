@@ -92,7 +92,6 @@ public class PedidoRepositoryJPA implements PedidoRepository {
     public void atualizarStatus(long id, Pedido.Status status) {
         pedidoJpa.findById(id).ifPresent(entity -> {
             entity.setStatus(status);
-            entity.setCampanha(entity.getCampanha()); // Ajuste se houver campos novos
             pedidoJpa.save(entity);
         });
     }

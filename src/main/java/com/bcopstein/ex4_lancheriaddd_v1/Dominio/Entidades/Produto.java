@@ -1,37 +1,11 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-
-@Entity
-@Table(name = "produtos")
 public class Produto {
 
-    @Id
-    @Column(name = "id")
     private long id;
-
-    @Column(name = "descricao")
     private String descricao;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "produto_receita",
-        joinColumns = @JoinColumn(name = "produto_id"),
-        inverseJoinColumns = @JoinColumn(name = "receita_id")
-    )
     private Receita receita;
-
-    @Column(name = "preco")
     private int preco;
-
-    protected Produto() {}
 
     public Produto(long id, String descricao, Receita receita, int preco) {
         if (!Produto.precoValido(preco))
