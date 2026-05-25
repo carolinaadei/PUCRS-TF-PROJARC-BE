@@ -37,7 +37,7 @@ public class PedidoStatusHistorico {
 
     public long getId() { return id; }
     public long getPedidoId() { return pedidoId; }
-    public long getStatus() { return status; }
+    public Pedido.Status getStatus() { return status; }
     public LocalDateTime getDataHora() { return dataHora; }
     public String getResponsavel() { return responsavel; }
 }
