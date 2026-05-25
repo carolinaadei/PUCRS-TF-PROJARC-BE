@@ -21,6 +21,7 @@ import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ListarPedidosEntreguesUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.SubmeterPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Requests.SubmeterPedidoRequest;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.AcompanhamentoPedidoResponse;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.CancelarPedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.PedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.SubmeterPedidoResponse;
 
@@ -42,7 +43,6 @@ public class PedidoController {
     private final CancelarPedidoUC cancelarPedidoUC;
     private final ListarPedidosEntreguesUC listarPedidosEntreguesUC;
     private final AcompanharPedidoUC acompanharPedidoUC;
-    private final SubmeterPedidoUC submeterPedidoUC;
 
     public PedidoController(CancelarPedidoUC cancelarPedidoUC,
             ListarPedidosEntreguesUC listarPedidosEntreguesUC,

@@ -18,9 +18,6 @@ public interface PedidoRepository {
     /** Persiste um novo pedido e retorna a instância com o ID gerado. */
     Pedido criar(Pedido pedido);
 
-    /** Busca um pedido pelo seu identificador. */
-    Pedido buscarPorId(long id);
-
     /** Busca pedidos com status ENTREGUE dentro do intervalo informado. */
     List<Pedido> buscarEntreguesEntre(LocalDateTime inicio, LocalDateTime fim);
 }
