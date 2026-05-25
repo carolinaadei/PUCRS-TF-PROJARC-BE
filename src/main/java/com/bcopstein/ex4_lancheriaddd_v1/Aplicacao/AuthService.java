@@ -11,18 +11,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
+@Autowired
     private final UserRepositoryJPA repositorio;
+    @Autowired
     private final PasswordEncoder encoder;
+    @Autowired
     private final JwtService jwtService;
+    @Autowired
     private final AuthenticationManager authManager;
-
-    public AuthService(UserRepositoryJPA repositorio, PasswordEncoder encoder,
-                       JwtService jwtService, AuthenticationManager authManager) {
-        this.repositorio = repositorio;
-        this.encoder = encoder;
-        this.jwtService = jwtService;
-        this.authManager = authManager;
-    }
 
     public AuthResponse register(String email, String password) {
         if (repositorio.findByEmail(email).isPresent()) {
