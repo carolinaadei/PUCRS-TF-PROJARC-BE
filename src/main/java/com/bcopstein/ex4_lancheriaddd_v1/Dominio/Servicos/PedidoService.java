@@ -16,11 +16,11 @@ import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
  * Serviço de domínio responsável pelas operações sobre Pedido.
  *
  * Regras de negócio implementadas aqui:
- *  - O cliente deve existir no cadastro.
- *  - O pedido deve conter ao menos um item.
- *  - Cada item deve ter quantidade >= 1.
- *  - O endereço de entrega não pode ser vazio.
- *  - Apenas pedidos com status NOVO ou APROVADO podem ser cancelados.
+ * - O cliente deve existir no cadastro.
+ * - O pedido deve conter ao menos um item.
+ * - Cada item deve ter quantidade >= 1.
+ * - O endereço de entrega não pode ser vazio.
+ * - Apenas pedidos com status NOVO ou APROVADO podem ser cancelados.
  *
  * Esta classe SUBSTITUI o PedidoService já existente no projeto,
  * unificando submissão e cancelamento em um único serviço de domínio.
@@ -33,7 +33,7 @@ public class PedidoService {
 
     @Autowired
     public PedidoService(PedidoRepository pedidoRepository,
-                         ClienteRepository clienteRepository) {
+            ClienteRepository clienteRepository) {
         this.pedidoRepository = pedidoRepository;
         this.clienteRepository = clienteRepository;
     }
@@ -64,30 +64,27 @@ public class PedidoService {
         for (ItemPedido item : itens) {
             if (item.getQuantidade() < 1) {
                 throw new IllegalArgumentException(
-                    "Quantidade inválida para o produto id=" + item.getItem().getId());
+                        "Quantidade inválida para o produto id=" + item.getItem().getId());
             }
         }
 
-        Cliente cliente = clienteRepository.buscarPorCpf(clienteCpf);
-        if (cliente == null) {
-            throw new IllegalArgumentException("Cliente não encontrado para CPF: " + clienteCpf);
-        }
+        Cliente cliente = clienteRepository.recuperaPorCpf(clienteCpf)
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado para CPF: " + clienteCpf));
 
         // ── Monta a entidade Pedido ────────────────────────────
         // ID 0 = ainda não persistido; o repositório devolve o ID gerado pelo BD.
         // Valor/impostos/desconto são zerados: serão calculados na etapa de aprovação.
         Pedido pedido = new Pedido(
-            0L,
-            cliente,
-            null,           // data_hora_pagamento — ainda sem pagamento
-            itens,
-            Pedido.Status.NOVO,
-            0.0,            // valor — calculado na aprovação
-            0.0,            // impostos — calculado na aprovação
-            0.0,            // desconto — calculado na aprovação
-            0.0,            // valorCobrado — calculado na aprovação
-            enderecoEntrega
-        );
+                0L,
+                cliente,
+                null, // data_hora_pagamento — ainda sem pagamento
+                itens,
+                Pedido.Status.NOVO,
+                0.0, // valor — calculado na aprovação
+                0.0, // impostos — calculado na aprovação
+                0.0, // desconto — calculado na aprovação
+                0.0, // valorCobrado — calculado na aprovação
+                enderecoEntrega);
 
         return pedidoRepository.criar(pedido);
     }
@@ -101,16 +98,13 @@ public class PedidoService {
      * Pedidos PAGO ou posteriores não podem ser cancelados.
      */
     public Pedido cancelar(long id, String canceladoPor) {
-        Pedido pedido = pedidoRepository.buscarPorId(id);
-
-        if (pedido == null) {
-            throw new RuntimeException("Pedido não encontrado");
-        }
+        Pedido pedido = pedidoRepository.recuperaPorId(id)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
 
         if (pedido.getStatus() != Pedido.Status.NOVO &&
-            pedido.getStatus() != Pedido.Status.APROVADO) {
+                pedido.getStatus() != Pedido.Status.APROVADO) {
             throw new RuntimeException(
-                "Pedido não pode ser cancelado pois está com status: " + pedido.getStatus());
+                    "Pedido não pode ser cancelado pois está com status: " + pedido.getStatus());
         }
 
         pedido.setStatus(Pedido.Status.CANCELADO);

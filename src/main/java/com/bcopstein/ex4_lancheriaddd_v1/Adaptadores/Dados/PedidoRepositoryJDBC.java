@@ -2,6 +2,7 @@ package com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -10,6 +11,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
 
@@ -62,18 +64,29 @@ public class PedidoRepositoryJDBC implements PedidoRepository {
     }
 
     @Override
-    public Pedido buscarPorId(long id) {
-        String sql = "SELECT id, cliente_cpf, status, valor, impostos, desconto, valor_cobrado, " +
-                "data_hora_pagamento, cancelado_por, data_hora_cancelamento FROM pedidos WHERE id = ?";
+    public Optional<Pedido> recuperaPorId(long id) {
+        String sql =
+            "SELECT p.id, p.status, p.valor, p.impostos, p.desconto, p.valor_cobrado, " +
+            "       p.data_hora_pagamento, p.cancelado_por, p.data_hora_cancelamento, " +
+            "       c.cpf, c.nome, c.celular, c.endereco, c.email " +
+            "FROM pedidos p " +
+            "JOIN clientes c ON c.cpf = p.cliente_cpf " +
+            "WHERE p.id = ?";
         List<Pedido> pedidos = this.jdbcTemplate.query(
                 sql,
                 ps -> ps.setLong(1, id),
                 (rs, rowNum) -> {
+                    Cliente cliente = new Cliente(
+                            rs.getString("cpf"),
+                            rs.getString("nome"),
+                            rs.getString("celular"),
+                            rs.getString("endereco"),
+                            rs.getString("email"));
                     Pedido p = new Pedido(
                             rs.getLong("id"),
-                            null,
+                            cliente,
                             rs.getObject("data_hora_pagamento", LocalDateTime.class),
-                            null,
+                            List.of(),
                             Pedido.Status.valueOf(rs.getString("status")),
                             rs.getDouble("valor"),
                             rs.getDouble("impostos"),
@@ -83,14 +96,42 @@ public class PedidoRepositoryJDBC implements PedidoRepository {
                     p.setDataHoraCancelamento(rs.getObject("data_hora_cancelamento", LocalDateTime.class));
                     return p;
                 });
-        if (pedidos.isEmpty()) {
-            return null;
-        }
-        return pedidos.getFirst();
+        return pedidos.isEmpty() ? Optional.empty() : Optional.of(pedidos.getFirst());
     }
 
     @Override
-    public void salvar(Pedido pedido) {
+    public List<Pedido> recuperaTodos() {
+        String sql =
+            "SELECT p.id, p.status, p.valor, p.impostos, p.desconto, p.valor_cobrado, " +
+            "       p.data_hora_pagamento, p.cancelado_por, p.data_hora_cancelamento, " +
+            "       c.cpf, c.nome, c.celular, c.endereco, c.email " +
+            "FROM pedidos p " +
+            "JOIN clientes c ON c.cpf = p.cliente_cpf";
+        return this.jdbcTemplate.query(sql, (rs, rowNum) -> {
+            Cliente cliente = new Cliente(
+                    rs.getString("cpf"),
+                    rs.getString("nome"),
+                    rs.getString("celular"),
+                    rs.getString("endereco"),
+                    rs.getString("email"));
+            Pedido p = new Pedido(
+                    rs.getLong("id"),
+                    cliente,
+                    rs.getObject("data_hora_pagamento", LocalDateTime.class),
+                    List.of(),
+                    Pedido.Status.valueOf(rs.getString("status")),
+                    rs.getDouble("valor"),
+                    rs.getDouble("impostos"),
+                    rs.getDouble("desconto"),
+                    rs.getDouble("valor_cobrado"));
+            p.setCanceladoPor(rs.getString("cancelado_por"));
+            p.setDataHoraCancelamento(rs.getObject("data_hora_cancelamento", LocalDateTime.class));
+            return p;
+        });
+    }
+
+    @Override
+    public Pedido salvar(Pedido pedido) {
         String sql = "UPDATE pedidos SET status = ?, cancelado_por = ?, data_hora_cancelamento = ? WHERE id = ?";
         this.jdbcTemplate.update(
                 sql,
@@ -98,6 +139,14 @@ public class PedidoRepositoryJDBC implements PedidoRepository {
                 pedido.getCanceladoPor(),
                 pedido.getDataHoraCancelamento(),
                 pedido.getId());
+        return pedido;
+    }
+
+    @Override
+    public void atualizarStatus(long id, Pedido.Status status) {
+        this.jdbcTemplate.update(
+                "UPDATE pedidos SET status = ? WHERE id = ?",
+                status.name(), id);
     }
 
     @Override
@@ -116,7 +165,7 @@ public class PedidoRepositoryJDBC implements PedidoRepository {
                             rs.getLong("id"),
                             null,
                             rs.getObject("data_hora_pagamento", LocalDateTime.class),
-                            null,
+                            List.of(),
                             Pedido.Status.valueOf(rs.getString("status")),
                             rs.getDouble("valor"),
                             rs.getDouble("impostos"),

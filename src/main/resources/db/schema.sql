@@ -37,7 +37,8 @@ create table if not exists receita_ingrediente (
 create table if not exists produtos (
   id bigint primary key,
   descricao varchar(255) not null,
-  preco bigint
+  preco bigint,
+  indicacao_chef boolean not null default false
 );
 
 -- Tabela de relacionamento entre Produto e Receita
@@ -66,13 +67,13 @@ create table if not exists cardapio_produto (
 
 -- Tabela de Pedidos
 create table if not exists pedidos (
-  id bigint auto_increment primary key,
+  id bigserial primary key,
   cliente_cpf varchar(15) not null,
   status varchar(20) not null,
-  valor double not null default 0,
-  impostos double not null default 0,
-  desconto double not null default 0,
-  valor_cobrado double not null default 0,
+  valor double precision not null default 0,
+  impostos double precision not null default 0,
+  desconto double precision not null default 0,
+  valor_cobrado double precision not null default 0,
   endereco_entrega varchar(255),
   data_hora_pagamento timestamp,
   cancelado_por varchar(100),
@@ -82,12 +83,21 @@ create table if not exists pedidos (
 
 -- Tabela de itens do pedido
 create table if not exists itens_pedido (
-  id bigint auto_increment primary key,
+  id bigserial primary key,
   pedido_id bigint not null,
   produto_id bigint not null,
   quantidade int not null,
   foreign key (pedido_id) references pedidos(id),
   foreign key (produto_id) references produtos(id)
+);
+
+create table if not exists pedido_status_historico (
+  id bigserial primary key,
+  pedido_id bigint not null,
+  status varchar(30) not null,
+  data_hora timestamp not null,
+  responsavel varchar(50) not null,
+  foreign key (pedido_id) references pedidos(id)
 );
 
 create table if not exists usuarios (
