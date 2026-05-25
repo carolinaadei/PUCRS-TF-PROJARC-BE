@@ -128,4 +128,10 @@ public class PedidoRepositoryJPA implements PedidoRepository {
         pedido.setDataHoraCancelamento(e.getDataHoraCancelamento());
         return pedido;
     }
+
+    @Override
+    public List<Pedido> buscarEntreguesPorClienteEntre(String clienteCpf, LocalDateTime inicio, LocalDateTime fim) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'buscarEntreguesPorClienteEntre'");
+    }
 }
