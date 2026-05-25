@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
 
@@ -58,7 +59,8 @@ public class PedidoService {
             throw new IllegalArgumentException("O pedido deve conter ao menos um item");
         }
 
-        Pedido pedido = new Pedido(0, null, null, itens, Pedido.Status.NOVO, 0, 0, 0, 0, enderecoEntrega);
+        Pedido pedido = new Pedido(0, new Cliente(clienteCpf, null, null, null, null),
+                null, itens, Pedido.Status.NOVO, 0, 0, 0, 0, enderecoEntrega);
         return pedidoRepository.criar(pedido);
     }
 

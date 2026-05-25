@@ -4,16 +4,10 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.ClienteRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
 
-/**
- * Adaptador de dados: implementação JDBC da porta ClienteRepository.
- * Segue o mesmo padrão dos demais repositórios JDBC do projeto.
- */
-@Repository
 public class ClienteRepositoryJDBC implements ClienteRepository {
 
     private final JdbcTemplate jdbcTemplate;
