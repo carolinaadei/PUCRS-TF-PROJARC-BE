@@ -7,6 +7,7 @@ import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.JPA.ProdutoJpaReposit
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Primary
 @Component
 public class PedidoRepositoryJPA implements PedidoRepository {
     private final PedidoJpaRepository pedidoJpa;
@@ -125,5 +127,11 @@ public class PedidoRepositoryJPA implements PedidoRepository {
         pedido.setCanceladoPor(e.getCanceladoPor());
         pedido.setDataHoraCancelamento(e.getDataHoraCancelamento());
         return pedido;
+    }
+
+    @Override
+    public List<Pedido> buscarEntreguesPorClienteEntre(String clienteCpf, LocalDateTime inicio, LocalDateTime fim) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'buscarEntreguesPorClienteEntre'");
     }
 }

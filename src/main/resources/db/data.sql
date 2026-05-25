@@ -85,7 +85,7 @@ INSERT INTO pedidos (id, cliente_cpf, status, valor, impostos, desconto, valor_c
 VALUES (3, '9001', 'ENTREGUE', 5500, 550, 0, 6050, '2026-05-01 14:30:00') ON CONFLICT DO NOTHING;
 
 INSERT INTO itens_pedido (id, pedido_id, produto_id, quantidade)
-VALUES (3, 3, 1, 1);
+VALUES (3, 3, 1, 1) ON CONFLICT DO NOTHING;
 
 -- Histórico de status do pedido 1 (APROVADO)
 INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (1, 'NOVO',     '2026-05-14 10:00:00', 'cliente');
