@@ -11,7 +11,7 @@ import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Produto;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.CardapioService;
 
 @Component
-public class RecuperarCardapioUC {
+public class RecuperarCardapioUC implements IRecuperarCardapioUC {
     private CardapioService cardapioService;
 
     @Autowired
