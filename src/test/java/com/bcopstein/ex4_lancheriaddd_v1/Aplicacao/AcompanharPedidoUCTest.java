@@ -36,8 +36,8 @@ class AcompanharPedidoUCTest {
     @BeforeEach
     void setUp() {
         pagamento = LocalDateTime.of(2026, 5, 14, 14, 30);
-        cliente = new Cliente("9001", "Huguinho Pato", "51985744566",
-                "Rua das Flores, 100", "huguinho@email.com");
+        cliente = new Cliente(null, "Huguinho Pato", "9001", "51985744566",
+                "Rua das Flores, 100", "huguinho@email.com", null);
         pedido = new Pedido(1L, cliente, pagamento, List.of(),
                 Pedido.Status.PREPARACAO, 5500, 550, 0, 6050);
     }

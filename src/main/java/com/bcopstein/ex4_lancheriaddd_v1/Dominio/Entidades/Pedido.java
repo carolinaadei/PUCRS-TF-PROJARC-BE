@@ -53,75 +53,22 @@ public class Pedido {
                 valor, impostos, desconto, valorCobrado, null);
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public Cliente getCliente() {
-        return cliente;
-    }
-
-    public LocalDateTime getDataHoraPagamento() {
-        return dataHoraPagamento;
-    }
-
-    public void setDataHoraPagamento(LocalDateTime dataHoraPagamento) {
-        this.dataHoraPagamento = dataHoraPagamento;
-    }
-
-    public List<ItemPedido> getItens() {
-        return itens;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public double getValor() {
-        return valor;
-    }
-
-    public double getImpostos() {
-        return impostos;
-    }
-
-    public double getDesconto() {
-        return desconto;
-    }
-
-    public double getValorCobrado() {
-        return valorCobrado;
-    }
-
-    public String getCanceladoPor() {
-        return canceladoPor;
-    }
-
-    public void setCanceladoPor(String canceladoPor) {
-        this.canceladoPor = canceladoPor;
-    }
-
-    public LocalDateTime getDataHoraCancelamento() {
-        return dataHoraCancelamento;
-    }
-
-    public void setDataHoraCancelamento(LocalDateTime dataHoraCancelamento) {
-        this.dataHoraCancelamento = dataHoraCancelamento;
-    }
-
-    public String getEnderecoEntrega() {
-        return enderecoEntrega;
-    }
-
-    public void setEnderecoEntrega(String enderecoEntrega) {
-        this.enderecoEntrega = enderecoEntrega;
-    }
+    public long getId() { return id; }
+    public void setId(long id) { this.id = id; }
+    public Cliente getCliente() { return cliente; }
+    public LocalDateTime getDataHoraPagamento() { return dataHoraPagamento; }
+    public void setDataHoraPagamento(LocalDateTime dataHoraPagamento) { this.dataHoraPagamento = dataHoraPagamento; }
+    public List<ItemPedido> getItens() { return itens; }
+    public Status getStatus() { return status; }
+    public void setStatus(Status status) { this.status = status; }
+    public double getValor() { return valor; }
+    public double getImpostos() { return impostos; }
+    public double getDesconto() { return desconto; }
+    public double getValorCobrado() { return valorCobrado; }
+    public String getCanceladoPor() { return canceladoPor; }
+    public void setCanceladoPor(String canceladoPor) { this.canceladoPor = canceladoPor; }
+    public LocalDateTime getDataHoraCancelamento() { return dataHoraCancelamento; }
+    public void setDataHoraCancelamento(LocalDateTime dataHoraCancelamento) { this.dataHoraCancelamento = dataHoraCancelamento; }
+    public String getEnderecoEntrega() { return enderecoEntrega; }
+    public void setEnderecoEntrega(String enderecoEntrega) { this.enderecoEntrega = enderecoEntrega; }
 }
