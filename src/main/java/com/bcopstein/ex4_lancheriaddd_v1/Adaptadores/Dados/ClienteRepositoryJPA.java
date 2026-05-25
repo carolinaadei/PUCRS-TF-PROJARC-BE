@@ -4,42 +4,69 @@ import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.Entidades.ClienteEnti
 import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.JPA.ClienteJpaRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.ClienteRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Optional;
 
 @Component
 public class ClienteRepositoryJPA implements ClienteRepository {
-    private final ClienteJpaRepository jpa;
 
-    @Autowired
-    public ClienteRepositoryJPA(ClienteJpaRepository jpa) {
-        this.jpa = jpa;
+    private final ClienteJpaRepository repository;
+
+    public ClienteRepositoryJPA(ClienteJpaRepository repository) {
+        this.repository = repository;
     }
 
     @Override
-    public Optional<Cliente> recuperaPorCpf(String cpf) {
-        return jpa.findById(cpf).map(this::toDomain);
-    }
+    public Cliente cadastrar(Cliente cliente) {
 
-    @Override
-    public List<Cliente> recuperaTodos() {
-        return jpa.findAll().stream().map(this::toDomain).toList();
-    }
-
-    @Override
-    public Cliente salvar(Cliente cliente) {
         ClienteEntity entity = toEntity(cliente);
-        return toDomain(jpa.save(entity));
+
+        ClienteEntity saved = repository.save(entity);
+
+        return toDomain(saved);
     }
 
-    private Cliente toDomain(ClienteEntity e) {
-        return new Cliente(e.getCpf(), e.getNome(), e.getCelular(), e.getEndereco(), e.getEmail());
+    @Override
+    public boolean existePorEmail(String email) {
+        return repository.existsByEmail(email);
     }
 
-    private ClienteEntity toEntity(Cliente c) {
-        return new ClienteEntity(c.getCpf(), c.getNome(), c.getCelular(), c.getEndereco(), c.getEmail());
+    @Override
+    public boolean existePorCpf(String cpf) {
+        return repository.existsByCpf(cpf);
+    }
+
+    @Override
+    public Optional<Cliente> buscarPorEmail(String email) {
+
+        return repository.findByEmail(email)
+                .map(this::toDomain);
+    }
+
+    private Cliente toDomain(ClienteEntity entity) {
+
+        return new Cliente(
+                entity.getId(),
+                entity.getNome(),
+                entity.getCpf(),
+                entity.getCelular(),
+                entity.getEndereco(),
+                entity.getEmail(),
+                entity.getSenhaHash()
+        );
+    }
+
+    private ClienteEntity toEntity(Cliente cliente) {
+
+        return new ClienteEntity(
+                cliente.getId(),
+                cliente.getNome(),
+                cliente.getCpf(),
+                cliente.getCelular(),
+                cliente.getEndereco(),
+                cliente.getEmail(),
+                cliente.getSenhaHash()
+        );
     }
 }

@@ -1,9 +1,11 @@
 create table if not exists clientes(
-  cpf varchar(15) not null primary key,
+  id bigserial primary key,
+  cpf varchar(15) not null unique,
   nome varchar(100) not null,
   celular varchar(20) not null,
   endereco varchar(255) not null,
-  email varchar(255) not null
+  email varchar(255) not null unique,
+  senha_hash varchar(255) not null
 );
 
 create table if not exists ingredientes (

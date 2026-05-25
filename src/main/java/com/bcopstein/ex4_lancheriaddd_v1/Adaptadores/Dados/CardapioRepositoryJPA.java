@@ -1,64 +1,66 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados;
 
-import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.Entidades.ProdutoEntity;
-import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.Entidades.ReceitaEntity;
-import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.JPA.CardapioJpaRepository;
-import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.JPA.ProdutoJpaRepository;
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.CardapioRepository;
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.Entidades.ClienteEntity;
+import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.JPA.ClienteJpaRepository;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.ClienteRepository;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Optional;
 
-@Component
-@Transactional(readOnly = true)
-public class CardapioRepositoryJPA implements CardapioRepository {
-    private final CardapioJpaRepository cardapioJpa;
-    private final ProdutoJpaRepository produtoJpa;
+@Repository
+public class ClienteRepositoryJPA implements ClienteRepository {
 
-    @Autowired
-    public CardapioRepositoryJPA(CardapioJpaRepository cardapioJpa,
-                                  ProdutoJpaRepository produtoJpa) {
-        this.cardapioJpa = cardapioJpa;
-        this.produtoJpa = produtoJpa;
+    private final ClienteJpaRepository repository;
+
+    public ClienteRepositoryJPA(ClienteJpaRepository repository) {
+        this.repository = repository;
     }
 
     @Override
-    public List<CabecalhoCardapio> cardapiosDisponiveis() {
-        return cardapioJpa.findAll().stream()
-            .map(e -> new CabecalhoCardapio(e.getId(), e.getTitulo()))
-            .toList();
+    public Cliente cadastrar(Cliente cliente) {
+        ClienteEntity entity = toEntity(cliente);
+        ClienteEntity saved = repository.save(entity);
+        return toDomain(saved);
     }
 
     @Override
-    public Cardapio recuperaPorId(long id) {
-        return cardapioJpa.findById(id).map(e -> {
-            CabecalhoCardapio cabecalho = new CabecalhoCardapio(e.getId(), e.getTitulo());
-            List<Produto> produtos = e.getProdutos().stream()
-                .map(this::produtoToDomain)
-                .toList();
-            return new Cardapio(cabecalho, produtos);
-        }).orElse(null);
+    public boolean existePorEmail(String email) {
+        return repository.existsByEmail(email);
     }
 
     @Override
-    public List<Produto> indicacoesDoChef() {
-        return produtoJpa.findByIndicacaoChefTrue().stream()
-            .map(this::produtoToDomain)
-            .toList();
+    public boolean existePorCpf(String cpf) {
+        return repository.existsByCpf(cpf);
     }
 
-    private Produto produtoToDomain(ProdutoEntity e) {
-        Receita receita = null;
-        if (e.getReceitas() != null && !e.getReceitas().isEmpty()) {
-            ReceitaEntity r = e.getReceitas().get(0);
-            List<Ingrediente> ingredientes = r.getIngredientes().stream()
-                .map(i -> new Ingrediente(i.getId(), i.getDescricao()))
-                .toList();
-            receita = new Receita(r.getId(), r.getTitulo(), ingredientes);
-        }
-        return new Produto(e.getId(), e.getDescricao(), receita, e.getPreco().intValue());
+    @Override
+    public Optional<Cliente> buscarPorEmail(String email) {
+        return repository.findByEmail(email)
+                .map(this::toDomain);
+    }
+
+    private ClienteEntity toEntity(Cliente cliente) {
+        return new ClienteEntity(
+                cliente.getId(),
+                cliente.getNome(),
+                cliente.getCpf(),
+                cliente.getCelular(),
+                cliente.getEndereco(),
+                cliente.getEmail(),
+                cliente.getSenhaHash()
+        );
+    }
+
+    private Cliente toDomain(ClienteEntity entity) {
+        return new Cliente(
+                entity.getId(),
+                entity.getNome(),
+                entity.getCpf(),
+                entity.getCelular(),
+                entity.getEndereco(),
+                entity.getEmail(),
+                entity.getSenhaHash()
+        );
     }
 }
