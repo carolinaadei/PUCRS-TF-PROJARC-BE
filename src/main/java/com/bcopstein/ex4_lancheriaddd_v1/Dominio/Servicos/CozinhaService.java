@@ -7,8 +7,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoStatusRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
@@ -25,22 +27,24 @@ public class CozinhaService implements ICozinhaService {
     private Queue<Pedido> filaSaida;
     private ScheduledExecutorService scheduler;
 
+    @Autowired
     public CozinhaService(PedidoRepository pedidoRepository,
                           PedidoStatusRepository statusRepository) {
         this.pedidoRepository = pedidoRepository;
         this.statusRepository = statusRepository;
-        filaEntrada = new LinkedBlockingQueue<>();
-        emPreparacao = null;
-        filaSaida = new LinkedBlockingQueue<>();
-        scheduler = Executors.newSingleThreadScheduledExecutor();
+        this.filaEntrada = new LinkedBlockingQueue<>();
+        this.emPreparacao = null;
+        this.filaSaida = new LinkedBlockingQueue<>();
+        this.scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
     private synchronized void colocaEmPreparacao(Pedido pedido) {
         pedido.setStatus(Pedido.Status.PREPARACAO);
-        emPreparacao = pedido;
         pedidoRepository.salvar(pedido);
         statusRepository.registrar(new PedidoStatusHistorico(
-            pedido.getId(), Pedido.Status.PREPARACAO, LocalDateTime.now(), "cozinha"));
+            pedido.getId(), Pedido.Status.PREPARACAO, LocalDateTime.now(), "cozinha"
+        ));
+        emPreparacao = pedido;
         scheduler.schedule(() -> pedidoPronto(), 5, TimeUnit.SECONDS);
     }
 
@@ -49,7 +53,8 @@ public class CozinhaService implements ICozinhaService {
         p.setStatus(Pedido.Status.AGUARDANDO);
         pedidoRepository.salvar(p);
         statusRepository.registrar(new PedidoStatusHistorico(
-            p.getId(), Pedido.Status.AGUARDANDO, LocalDateTime.now(), "cozinha"));
+            p.getId(), Pedido.Status.AGUARDANDO, LocalDateTime.now(), "cozinha"
+        ));
         filaEntrada.add(p);
         if (emPreparacao == null) {
             colocaEmPreparacao(filaEntrada.poll());
@@ -61,7 +66,8 @@ public class CozinhaService implements ICozinhaService {
         emPreparacao.setStatus(Pedido.Status.PRONTO);
         pedidoRepository.salvar(emPreparacao);
         statusRepository.registrar(new PedidoStatusHistorico(
-            emPreparacao.getId(), Pedido.Status.PRONTO, LocalDateTime.now(), "cozinha"));
+            emPreparacao.getId(), Pedido.Status.PRONTO, LocalDateTime.now(), "cozinha"
+        ));
 
         Pedido pronto = emPreparacao;
         filaSaida.add(pronto);
@@ -83,7 +89,8 @@ public class CozinhaService implements ICozinhaService {
         pedido.setStatus(Pedido.Status.TRANSPORTE);
         pedidoRepository.salvar(pedido);
         statusRepository.registrar(new PedidoStatusHistorico(
-            pedido.getId(), Pedido.Status.TRANSPORTE, LocalDateTime.now(), "entregador"));
+            pedido.getId(), Pedido.Status.TRANSPORTE, LocalDateTime.now(), "entregador"
+        ));
         scheduler.schedule(() -> finalizar(pedido), 10, TimeUnit.SECONDS);
     }
 
@@ -91,6 +98,7 @@ public class CozinhaService implements ICozinhaService {
         pedido.setStatus(Pedido.Status.ENTREGUE);
         pedidoRepository.salvar(pedido);
         statusRepository.registrar(new PedidoStatusHistorico(
-            pedido.getId(), Pedido.Status.ENTREGUE, LocalDateTime.now(), "entregador"));
+            pedido.getId(), Pedido.Status.ENTREGUE, LocalDateTime.now(), "entregador"
+        ));
     }
 }

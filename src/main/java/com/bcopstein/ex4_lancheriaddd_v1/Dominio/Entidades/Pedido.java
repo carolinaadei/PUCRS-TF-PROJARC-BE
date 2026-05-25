@@ -3,14 +3,22 @@ package com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Entidade de domínio que representa um pedido.
- *
- * Alteração em relação à versão anterior: adição do campo
- * {@code enderecoEntrega},
- * necessário para a funcionalidade de Submissão de Pedido (Task).
- * Os demais campos e construtores foram preservados.
- */
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "pedidos")
 public class Pedido {
 
     public enum Status {
@@ -25,22 +33,51 @@ public class Pedido {
         CANCELADO
     }
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cliente_cpf", nullable = false)
     private Cliente cliente;
+
+    @Column(name = "data_hora_pagamento")
     private LocalDateTime dataHoraPagamento;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "itens_pedido", joinColumns = @JoinColumn(name = "pedido_id"))
     private List<ItemPedido> itens;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
     private Status status;
+
+    @Column(name = "valor")
     private double valor;
+
+    @Column(name = "impostos")
     private double impostos;
+
+    @Column(name = "desconto")
     private double desconto;
+
+    @Column(name = "valor_cobrado")
     private double valorCobrado;
+
+    @Column(name = "cancelado_por")
     private String canceladoPor;
+
+    @Column(name = "data_hora_cancelamento")
     private LocalDateTime dataHoraCancelamento;
 
-    /** Endereço informado pelo cliente no momento da submissão do pedido. */
+    @Column(name = "endereco_entrega")
     private String enderecoEntrega;
 
-    // ── Construtor completo (novo — inclui enderecoEntrega) ──────────────────
+    // Construtor vazio obrigatório para JPA
+    protected Pedido() {
+    }
+
+    // Construtor completo (inclui enderecoEntrega)
     public Pedido(long id, Cliente cliente, LocalDateTime dataHoraPagamento,
             List<ItemPedido> itens, Status status,
             double valor, double impostos, double desconto, double valorCobrado,
@@ -57,16 +94,13 @@ public class Pedido {
         this.enderecoEntrega = enderecoEntrega;
     }
 
-    // ── Construtor de compatibilidade (sem enderecoEntrega) ──────────────────
-    // Mantém retrocompatibilidade com PedidoRepositoryJDBC existente.
+    // Construtor de compatibilidade (sem enderecoEntrega)
     public Pedido(long id, Cliente cliente, LocalDateTime dataHoraPagamento,
             List<ItemPedido> itens, Status status,
             double valor, double impostos, double desconto, double valorCobrado) {
         this(id, cliente, dataHoraPagamento, itens, status,
                 valor, impostos, desconto, valorCobrado, null);
     }
-
-    // ── Getters / Setters ────────────────────────────────────────────────────
 
     public long getId() {
         return id;
@@ -82,6 +116,10 @@ public class Pedido {
 
     public LocalDateTime getDataHoraPagamento() {
         return dataHoraPagamento;
+    }
+
+    public void setDataHoraPagamento(LocalDateTime dataHoraPagamento) {
+        this.dataHoraPagamento = dataHoraPagamento;
     }
 
     public List<ItemPedido> getItens() {
@@ -126,10 +164,6 @@ public class Pedido {
 
     public void setDataHoraCancelamento(LocalDateTime dataHoraCancelamento) {
         this.dataHoraCancelamento = dataHoraCancelamento;
-    }
-
-    public void setDataHoraPagamento(LocalDateTime dataHoraPagamento) {
-        this.dataHoraPagamento = dataHoraPagamento;
     }
 
     public String getEnderecoEntrega() {
