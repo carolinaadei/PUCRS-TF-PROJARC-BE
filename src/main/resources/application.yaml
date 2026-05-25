@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:pizzadb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: ${DATABASE_URL}
+    driver-class-name: org.postgresql.Driver
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
   sql:
     init:
       mode: always
@@ -12,12 +12,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-    database-platform: org.hibernate.dialect.H2Dialect
-    defer-datasource-initialization: true
-  h2:
-    console:
-      enabled: true
-      path: /h2
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
 logging:
   level:
     org:
@@ -29,3 +27,5 @@ application:
   name: ex4-lancheriaddd-v1
 server:
   port: 8080
+jwt:
+  secret: 357638792F423F4428472B4B6250655368566D597133743677397A2443264629

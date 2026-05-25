@@ -11,10 +11,14 @@ import lombok.*;
 @AllArgsConstructor
 public class ClienteEntity {
     @Id
-    private String cpf;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false)
     private String nome;
+
+    @Column(nullable = false, unique = true)
+    private String cpf;
 
     @Column(nullable = false)
     private String celular;
@@ -22,6 +26,9 @@ public class ClienteEntity {
     @Column(nullable = false)
     private String endereco;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(name = "senha_hash", nullable = false)
+    private String senhaHash;
 }

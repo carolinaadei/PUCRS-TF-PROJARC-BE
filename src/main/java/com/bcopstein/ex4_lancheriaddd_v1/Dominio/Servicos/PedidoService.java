@@ -11,28 +11,64 @@ import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.CalculadoraPreco.ResultadoCalculo;
 
 @Service
 public class PedidoService {
-    private PedidoRepository pedidoRepository;
-    private IPaymentService paymentService;
-    private ICozinhaService cozinhaService;
+
+    private final PedidoRepository pedidoRepository;
+    private final CalculadoraPreco calculadoraPreco;
+    private final IPaymentService paymentService;
+    private final ICozinhaService cozinhaService;
 
     @Autowired
     public PedidoService(PedidoRepository pedidoRepository,
+            CalculadoraPreco calculadoraPreco,
             IPaymentService paymentService,
             ICozinhaService cozinhaService) {
         this.pedidoRepository = pedidoRepository;
+        this.calculadoraPreco = calculadoraPreco;
         this.paymentService = paymentService;
         this.cozinhaService = cozinhaService;
     }
 
-    public Pedido cancelar(long id, String canceladoPor) {
-        Pedido pedido = pedidoRepository.buscarPorId(id);
-
-        if (pedido == null) {
-            throw new NoSuchElementException("Pedido não encontrado");
+    public Pedido submeter(String clienteCpf, String enderecoEntrega, List<ItemPedido> itens) {
+        if (clienteCpf == null || clienteCpf.isBlank()) {
+            throw new IllegalArgumentException("CPF do cliente é obrigatório");
         }
+        if (enderecoEntrega == null || enderecoEntrega.isBlank()) {
+            throw new IllegalArgumentException("Endereço de entrega é obrigatório");
+        }
+        if (itens == null || itens.isEmpty()) {
+            throw new IllegalArgumentException("O pedido deve conter ao menos um item");
+        }
+        for (ItemPedido item : itens) {
+            if (item.getQuantidade() < 1) {
+                throw new IllegalArgumentException(
+                        "Quantidade inválida para o produto id=" + item.getItem().getId());
+            }
+        }
+
+        ResultadoCalculo preco = calculadoraPreco.calcular(itens);
+        Cliente cliente = new Cliente(null, null, clienteCpf, null, null, null, null);
+
+        Pedido pedido = new Pedido(
+                0L,
+                cliente,
+                null,
+                itens,
+                Pedido.Status.NOVO,
+                preco.valor(),
+                preco.impostos(),
+                preco.desconto(),
+                preco.valorCobrado(),
+                enderecoEntrega);
+        return pedidoRepository.criar(pedido);
+    }
+
+    public Pedido cancelar(long id, String canceladoPor) {
+        Pedido pedido = pedidoRepository.recuperaPorId(id)
+                .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado"));
 
         if (pedido.getStatus() != Pedido.Status.NOVO &&
                 pedido.getStatus() != Pedido.Status.APROVADO) {
@@ -48,31 +84,13 @@ public class PedidoService {
         return pedido;
     }
 
-    public Pedido submeter(String clienteCpf, String enderecoEntrega, List<ItemPedido> itens) {
-        if (clienteCpf == null || clienteCpf.isBlank()) {
-            throw new IllegalArgumentException("CPF do cliente é obrigatório");
-        }
-        if (enderecoEntrega == null || enderecoEntrega.isBlank()) {
-            throw new IllegalArgumentException("Endereço de entrega é obrigatório");
-        }
-        if (itens == null || itens.isEmpty()) {
-            throw new IllegalArgumentException("O pedido deve conter ao menos um item");
-        }
-
-        Pedido pedido = new Pedido(0, new Cliente(clienteCpf, null, null, null, null),
-                null, itens, Pedido.Status.NOVO, 0, 0, 0, 0, enderecoEntrega);
-        return pedidoRepository.criar(pedido);
-    }
-
     public Pedido pagar(long id) {
-        Pedido pedido = pedidoRepository.buscarPorId(id);
-
-        if (pedido == null) {
-            throw new NoSuchElementException("Pedido não encontrado");
-        }
+        Pedido pedido = pedidoRepository.recuperaPorId(id)
+                .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado"));
 
         if (pedido.getStatus() != Pedido.Status.APROVADO) {
-            throw new IllegalArgumentException("Pedido não pode ser pago pois está com status: " + pedido.getStatus());
+            throw new IllegalArgumentException(
+                    "Pedido não pode ser pago pois está com status: " + pedido.getStatus());
         }
 
         boolean pagamentoAprovado = paymentService.processPayment(pedido.getId(), pedido.getValorCobrado());
@@ -85,7 +103,7 @@ public class PedidoService {
         pedido.setDataHoraPagamento(LocalDateTime.now());
         pedidoRepository.salvar(pedido);
 
-        Pedido pedidoSalvo = pedidoRepository.buscarPorId(pedido.getId());
+        Pedido pedidoSalvo = pedidoRepository.recuperaPorId(pedido.getId()).orElse(pedido);
         cozinhaService.chegadaDePedido(pedido);
 
         return pedidoSalvo;

@@ -23,5 +23,5 @@ public class ItemPedidoEntity {
     private ProdutoEntity produto;
 
     @Column(nullable = false)
-    private int quantidade;
+    private Integer quantidade;
 }

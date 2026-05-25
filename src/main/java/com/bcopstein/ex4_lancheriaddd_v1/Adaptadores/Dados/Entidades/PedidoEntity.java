@@ -19,7 +19,7 @@ public class PedidoEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cliente_cpf", nullable = false)
+    @JoinColumn(name = "cliente_cpf", referencedColumnName = "cpf", nullable = false)
     private ClienteEntity cliente;
 
     private LocalDateTime dataHoraPagamento;

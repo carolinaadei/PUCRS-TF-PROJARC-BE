@@ -15,12 +15,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.AcompanharPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.CancelarPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ListarPedidosClienteUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ListarPedidosEntreguesUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.PagarPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.SubmeterPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Requests.SubmeterPedidoRequest;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.AcompanhamentoPedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.CancelarPedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.PagarPedidoResponse;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.PedidoResponse;
@@ -35,17 +37,20 @@ public class PedidoController {
     private final ListarPedidosEntreguesUC listarPedidosEntreguesUC;
     private final ListarPedidosClienteUC listarPedidosClienteUC;
     private final PagarPedidoUC pagarPedidoUC;
+    private final AcompanharPedidoUC acompanharPedidoUC;
 
     public PedidoController(CancelarPedidoUC cancelarPedidoUC,
                             SubmeterPedidoUC submeterPedidoUC,
                             ListarPedidosEntreguesUC listarPedidosEntreguesUC,
                             ListarPedidosClienteUC listarPedidosClienteUC,
-                            PagarPedidoUC pagarPedidoUC) {
+                            PagarPedidoUC pagarPedidoUC,
+                            AcompanharPedidoUC acompanharPedidoUC) {
         this.cancelarPedidoUC = cancelarPedidoUC;
         this.submeterPedidoUC = submeterPedidoUC;
         this.listarPedidosEntreguesUC = listarPedidosEntreguesUC;
         this.listarPedidosClienteUC = listarPedidosClienteUC;
         this.pagarPedidoUC = pagarPedidoUC;
+        this.acompanharPedidoUC = acompanharPedidoUC;
     }
 
     @PostMapping
@@ -84,5 +89,13 @@ public class PedidoController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim) {
         return listarPedidosClienteUC.run(cpf, inicio, fim);
+    }
+
+    @GetMapping("/{id}/status")
+    @CrossOrigin("*")
+    public AcompanhamentoPedidoResponse acompanharPedido(
+            @PathVariable(value = "id") long id,
+            @RequestParam String cpf) {
+        return acompanharPedidoUC.run(id, cpf);
     }
 }

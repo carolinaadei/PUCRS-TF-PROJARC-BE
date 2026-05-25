@@ -5,15 +5,17 @@ import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.JPA.ClienteJpaReposit
 import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.JPA.PedidoJpaRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.JPA.ProdutoJpaRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
+@Primary
 @Component
 public class PedidoRepositoryJPA implements PedidoRepository {
 
@@ -33,19 +35,19 @@ public class PedidoRepositoryJPA implements PedidoRepository {
     @Override
     @Transactional
     public Pedido criar(Pedido pedido) {
-        ClienteEntity clienteEntity = clienteJpa.findById(pedido.getCliente().getCpf())
+        ClienteEntity clienteEntity = clienteJpa.findByCpf(pedido.getCliente().getCpf())
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Cliente não encontrado: " + pedido.getCliente().getCpf()));
 
         PedidoEntity entity = new PedidoEntity();
         entity.setCliente(clienteEntity);
+        entity.setDataHoraPagamento(pedido.getDataHoraPagamento());
         entity.setStatus(pedido.getStatus());
         entity.setValor(pedido.getValor());
         entity.setImpostos(pedido.getImpostos());
         entity.setDesconto(pedido.getDesconto());
         entity.setValorCobrado(pedido.getValorCobrado());
         entity.setEnderecoEntrega(pedido.getEnderecoEntrega());
-        entity.setDataHoraPagamento(pedido.getDataHoraPagamento());
 
         List<ItemPedidoEntity> itens = pedido.getItens().stream().map(item -> {
             ProdutoEntity produtoEntity = produtoJpa.findById(item.getItem().getId())
@@ -63,11 +65,6 @@ public class PedidoRepositoryJPA implements PedidoRepository {
     }
 
     @Override
-    public Pedido buscarPorId(long id) {
-        return pedidoJpa.findById(id).map(this::toDomain).orElse(null);
-    }
-
-    @Override
     @Transactional
     public void salvar(Pedido pedido) {
         PedidoEntity entity = pedidoJpa.findById(pedido.getId())
@@ -78,6 +75,25 @@ public class PedidoRepositoryJPA implements PedidoRepository {
         entity.setDataHoraCancelamento(pedido.getDataHoraCancelamento());
         entity.setDataHoraPagamento(pedido.getDataHoraPagamento());
         pedidoJpa.save(entity);
+    }
+
+    @Override
+    public Optional<Pedido> recuperaPorId(long id) {
+        return pedidoJpa.findById(id).map(this::toDomain);
+    }
+
+    @Override
+    public List<Pedido> recuperaTodos() {
+        return pedidoJpa.findAll().stream().map(this::toDomain).toList();
+    }
+
+    @Override
+    @Transactional
+    public void atualizarStatus(long id, Pedido.Status status) {
+        pedidoJpa.findById(id).ifPresent(entity -> {
+            entity.setStatus(status);
+            pedidoJpa.save(entity);
+        });
     }
 
     @Override
@@ -96,20 +112,27 @@ public class PedidoRepositoryJPA implements PedidoRepository {
 
     private Pedido toDomain(PedidoEntity e) {
         Cliente cliente = e.getCliente() != null
-                ? new Cliente(e.getCliente().getCpf(), e.getCliente().getNome(),
-                        e.getCliente().getCelular(), e.getCliente().getEndereco(),
-                        e.getCliente().getEmail())
+                ? new Cliente(e.getCliente().getId(), e.getCliente().getNome(),
+                        e.getCliente().getCpf(), e.getCliente().getCelular(),
+                        e.getCliente().getEndereco(), e.getCliente().getEmail(), null)
                 : null;
+
+        List<ItemPedido> itens = e.getItens() == null ? List.of() : e.getItens().stream().map(item -> {
+            ProdutoEntity p = item.getProduto();
+            Produto produto = new Produto(p.getId(), p.getDescricao(), null, p.getPreco().intValue());
+            return new ItemPedido(produto, item.getQuantidade());
+        }).toList();
+
         Pedido pedido = new Pedido(
                 e.getId(),
                 cliente,
                 e.getDataHoraPagamento(),
-                List.of(),
+                itens,
                 e.getStatus(),
-                e.getValor() != null ? e.getValor() : 0.0,
-                e.getImpostos() != null ? e.getImpostos() : 0.0,
-                e.getDesconto() != null ? e.getDesconto() : 0.0,
-                e.getValorCobrado() != null ? e.getValorCobrado() : 0.0,
+                e.getValor(),
+                e.getImpostos(),
+                e.getDesconto(),
+                e.getValorCobrado(),
                 e.getEnderecoEntrega());
         pedido.setCanceladoPor(e.getCanceladoPor());
         pedido.setDataHoraCancelamento(e.getDataHoraCancelamento());
