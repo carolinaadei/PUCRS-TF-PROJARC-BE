@@ -65,6 +65,7 @@ INSERT INTO cardapio_produto (cardapio_id, produto_id) VALUES (1, 2) ON CONFLICT
 INSERT INTO cardapio_produto (cardapio_id, produto_id) VALUES (1, 3) ON CONFLICT DO NOTHING;
 INSERT INTO cardapio_produto (cardapio_id, produto_id) VALUES (2, 1) ON CONFLICT DO NOTHING;
 INSERT INTO cardapio_produto (cardapio_id, produto_id) VALUES (2, 3) ON CONFLICT DO NOTHING;
+
 -- Pedido aprovado (pode ser cancelado)
 INSERT INTO pedidos (id, cliente_cpf, status, valor, impostos, desconto, valor_cobrado)
 VALUES (1, '9001', 'APROVADO', 5500, 550, 0, 6050) ON CONFLICT DO NOTHING;
