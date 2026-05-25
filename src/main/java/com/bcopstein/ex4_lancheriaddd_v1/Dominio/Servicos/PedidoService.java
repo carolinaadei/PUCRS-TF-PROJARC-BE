@@ -23,18 +23,21 @@ public class PedidoService {
     private final CalculadoraPreco calculadoraPreco;
     private final IPaymentService paymentService;
     private final ICozinhaService cozinhaService;
+    private final IStockService stockService;
 
     @Autowired
     public PedidoService(PedidoRepository pedidoRepository,
             PedidoStatusRepository statusRepository,
             CalculadoraPreco calculadoraPreco,
             IPaymentService paymentService,
-            ICozinhaService cozinhaService) {
+            ICozinhaService cozinhaService,
+            IStockService stockService) {
         this.pedidoRepository = pedidoRepository;
         this.statusRepository = statusRepository;
         this.calculadoraPreco = calculadoraPreco;
         this.paymentService = paymentService;
         this.cozinhaService = cozinhaService;
+        this.stockService = stockService;
     }
 
     public Pedido submeter(String clienteCpf, String enderecoEntrega, List<ItemPedido> itens) {
@@ -54,7 +57,20 @@ public class PedidoService {
             }
         }
 
-        ResultadoCalculo preco = calculadoraPreco.calcular(itens);
+        // Verificação de estoque — pedido inicia como NOVO
+        List<ItemPedido> itensSemEstoque = itens.stream()
+                .filter(item -> !stockService.verifyItem(item))
+                .toList();
+
+        if (!itensSemEstoque.isEmpty()) {
+            throw new IllegalStateException(
+                    "Estoque insuficiente para os itens: " + itensSemEstoque.stream()
+                            .map(i -> String.valueOf(i.getItem().getId()))
+                            .toList());
+        }
+
+        // Estoque suficiente — calcula preço e aprova
+        ResultadoCalculo preco = calculadoraPreco.calcular(itens, clienteCpf);
         Cliente cliente = new Cliente(null, null, clienteCpf, null, null, null, null);
 
         Pedido pedido = new Pedido(
@@ -62,18 +78,19 @@ public class PedidoService {
                 cliente,
                 null,
                 itens,
-                Pedido.Status.NOVO,
+                Pedido.Status.APROVADO,
                 preco.valor(),
                 preco.impostos(),
                 preco.desconto(),
                 preco.valorCobrado(),
                 enderecoEntrega);
-        
+
         Pedido criado = pedidoRepository.criar(pedido);
 
         statusRepository.registrar(new PedidoStatusHistorico(
-            criado.getId(), Pedido.Status.NOVO, LocalDateTime.now(), "cliente"
-        ));
+                criado.getId(), Pedido.Status.NOVO, LocalDateTime.now(), "cliente"));
+        statusRepository.registrar(new PedidoStatusHistorico(
+                criado.getId(), Pedido.Status.APROVADO, LocalDateTime.now(), "sistema"));
 
         return criado;
     }
@@ -82,9 +99,9 @@ public class PedidoService {
         Pedido pedido = pedidoRepository.recuperaPorId(id)
                 .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado"));
 
-        if (pedido.getStatus() != Pedido.Status.NOVO &&
-            pedido.getStatus() != Pedido.Status.APROVADO) {
-            throw new IllegalArgumentException("Pedido não pode ser cancelado pois está com status: " + pedido.getStatus());
+        if (pedido.getStatus() != Pedido.Status.APROVADO) {
+            throw new IllegalArgumentException(
+                    "Pedido não pode ser cancelado pois está com status: " + pedido.getStatus());
         }
 
         pedido.setStatus(Pedido.Status.CANCELADO);
@@ -93,8 +110,7 @@ public class PedidoService {
         pedidoRepository.salvar(pedido);
 
         statusRepository.registrar(new PedidoStatusHistorico(
-            pedido.getId(), Pedido.Status.CANCELADO, LocalDateTime.now(), canceladoPor
-        ));
+                pedido.getId(), Pedido.Status.CANCELADO, LocalDateTime.now(), canceladoPor));
 
         return pedido;
     }
@@ -119,8 +135,7 @@ public class PedidoService {
         pedidoRepository.salvar(pedido);
 
         statusRepository.registrar(new PedidoStatusHistorico(
-            pedido.getId(), Pedido.Status.PAGO, LocalDateTime.now(), "cliente"
-        ));
+                pedido.getId(), Pedido.Status.PAGO, LocalDateTime.now(), "cliente"));
 
         Pedido pedidoSalvo = pedidoRepository.recuperaPorId(pedido.getId()).orElse(pedido);
         cozinhaService.chegadaDePedido(pedidoSalvo);

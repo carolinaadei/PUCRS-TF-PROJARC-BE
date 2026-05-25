@@ -30,4 +30,10 @@ public interface PedidoJpaRepository extends JpaRepository<PedidoEntity, Long> {
             @Param("cpf") String cpf,
             @Param("inicio") LocalDateTime inicio,
             @Param("fim") LocalDateTime fim);
+
+    @Query("SELECT COUNT(p) FROM PedidoEntity p " +
+           "WHERE p.cliente.cpf = :cpf AND p.dataHoraPagamento >= :desde")
+    long countPedidosRecentes(
+            @Param("cpf") String cpf,
+            @Param("desde") LocalDateTime desde);
 }
