@@ -97,11 +97,12 @@ create table if not exists pedido_status_historico (
   status varchar(30) not null,
   data_hora timestamp not null,
   responsavel varchar(50) not null,
-  foreign key (pedido_id) references pedidos(id)
+  foreign key (pedido_id) references pedidos(id),
+  unique (pedido_id, status)
 );
 
 create table if not exists usuarios (
-  id bigint primary key auto_increment,
+  id bigint generated always as identity primary key,
   email varchar(255) unique not null,
   password varchar(255) not null,
   role varchar(50) not null
