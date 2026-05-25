@@ -1,13 +1,16 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados;
 
-import java.util.List;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
 
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.CabecalhoCardapio;
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cardapio;
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Produto;
+import java.util.Optional;
 
-public interface CardapioRepository {
-    List<CabecalhoCardapio> cardapiosDisponiveis();
-    Cardapio recuperaPorId(long id);
-    List<Produto> indicacoesDoChef();
+public interface ClienteRepository {
+
+    Cliente cadastrar(Cliente cliente);
+
+    boolean existePorEmail(String email);
+
+    boolean existePorCpf(String cpf);
+
+    Optional<Cliente> buscarPorEmail(String email);
 }
