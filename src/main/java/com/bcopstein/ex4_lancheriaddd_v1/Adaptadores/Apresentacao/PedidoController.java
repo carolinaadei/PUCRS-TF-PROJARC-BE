@@ -20,6 +20,7 @@ import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.CancelarPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ListarPedidosClienteUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ListarPedidosEntreguesUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.PagarPedidoUC;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.RetornarPedidosClienteUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.SubmeterPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Requests.SubmeterPedidoRequest;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.Responses.AcompanhamentoPedidoResponse;
@@ -38,19 +39,22 @@ public class PedidoController {
     private final ListarPedidosClienteUC listarPedidosClienteUC;
     private final PagarPedidoUC pagarPedidoUC;
     private final AcompanharPedidoUC acompanharPedidoUC;
+    private final RetornarPedidosClienteUC retornarPedidosClienteUC;
 
     public PedidoController(CancelarPedidoUC cancelarPedidoUC,
                             SubmeterPedidoUC submeterPedidoUC,
                             ListarPedidosEntreguesUC listarPedidosEntreguesUC,
                             ListarPedidosClienteUC listarPedidosClienteUC,
                             PagarPedidoUC pagarPedidoUC,
-                            AcompanharPedidoUC acompanharPedidoUC) {
+                            AcompanharPedidoUC acompanharPedidoUC,
+                            RetornarPedidosClienteUC retornarPedidosClienteUC) {
         this.cancelarPedidoUC = cancelarPedidoUC;
         this.submeterPedidoUC = submeterPedidoUC;
         this.listarPedidosEntreguesUC = listarPedidosEntreguesUC;
         this.listarPedidosClienteUC = listarPedidosClienteUC;
         this.pagarPedidoUC = pagarPedidoUC;
         this.acompanharPedidoUC = acompanharPedidoUC;
+        this.retornarPedidosClienteUC = retornarPedidosClienteUC;
     }
 
     @PostMapping
@@ -97,5 +101,11 @@ public class PedidoController {
             @PathVariable(value = "id") long id,
             @RequestParam String cpf) {
         return acompanharPedidoUC.run(id, cpf);
+    }
+
+    @GetMapping("/cliente")
+    @CrossOrigin("*")
+    public List<PedidoResponse> retornarPedidosCliente(@RequestParam String clienteCpf) {
+        return retornarPedidosClienteUC.run(clienteCpf);
     }
 }
