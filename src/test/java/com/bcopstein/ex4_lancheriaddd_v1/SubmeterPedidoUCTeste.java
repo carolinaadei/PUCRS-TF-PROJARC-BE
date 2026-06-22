@@ -53,8 +53,8 @@ class SubmeterPedidoUCTest {
         Receita receita = new Receita(1L, "Pizza calabresa",
                                       List.of(new Ingrediente(1L, "Disco de pizza")));
         produtoCalabresa = new Produto(1L, "Pizza calabresa", receita, 5500);
-        clienteHuguinho = new Cliente("9001", "Huguinho Pato", "51985744566",
-                                      "Rua das Flores, 100", "huguinho@email.com");
+        clienteHuguinho = new Cliente(null, "Huguinho Pato", "9001", "51985744566",
+                                      "Rua das Flores, 100", "huguinho@email.com", null);
     }
 
     @Test

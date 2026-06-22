@@ -1,12 +1,13 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades;
 
 public class Produto {
+
     private long id;
     private String descricao;
     private Receita receita;
     private int preco;
 
-    public Produto(long id,String descricao, Receita receita, int preco) {
+    public Produto(long id, String descricao, Receita receita, int preco) {
         if (!Produto.precoValido(preco))
             throw new IllegalArgumentException("Preco invalido: " + preco);
         if (descricao == null || descricao.length() == 0)
@@ -17,7 +18,7 @@ public class Produto {
         this.preco = preco;
     }
 
-    public long getId(){
+    public long getId() {
         return id;
     }
 
@@ -39,7 +40,6 @@ public class Produto {
         this.preco = preco;
     }
 
-    // Valida um preco (preco em centavos)
     public static boolean precoValido(int preco) {
         return preco > 0;
     }
@@ -48,5 +48,4 @@ public class Produto {
     public String toString() {
         return "Produto [id=" + id + ", descricao=" + descricao + ", receita=" + receita + ", preco=" + preco + "]";
     }
-    
 }

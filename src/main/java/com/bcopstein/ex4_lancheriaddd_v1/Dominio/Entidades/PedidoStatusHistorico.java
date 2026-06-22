@@ -6,9 +6,9 @@ import java.time.LocalDateTime;
  * Entidade de domínio que representa uma entrada no histórico de status de um pedido.
  *
  * Cada vez que um pedido muda de status, uma entrada é registrada com:
- *  - o status que foi atingido
- *  - a data/hora exata da transição
- *  - quem (ou qual sistema) provocou a mudança
+ * - o status que foi atingido
+ * - a data/hora exata da transição
+ * - quem (ou qual sistema) provocou a mudança
  *
  * Isso permite ao cliente acompanhar toda a evolução do pedido com rastreabilidade.
  */

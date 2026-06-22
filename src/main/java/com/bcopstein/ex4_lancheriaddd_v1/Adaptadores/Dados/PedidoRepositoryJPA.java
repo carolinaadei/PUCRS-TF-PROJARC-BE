@@ -110,6 +110,11 @@ public class PedidoRepositoryJPA implements PedidoRepository {
                 .stream().map(this::toDomain).toList();
     }
 
+    @Override
+    public long contarPedidosRecentes(String clienteCpf, LocalDateTime desde) {
+        return pedidoJpa.countPedidosRecentes(clienteCpf, desde);
+    }
+
     private Pedido toDomain(PedidoEntity e) {
         Cliente cliente = e.getCliente() != null
                 ? new Cliente(e.getCliente().getId(), e.getCliente().getNome(),
