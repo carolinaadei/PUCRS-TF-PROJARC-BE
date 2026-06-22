@@ -165,4 +165,10 @@ public class PedidoService {
         }
         return pedidoRepository.buscarEntreguesPorClienteEntre(clienteCpf, inicio, fim);
     }
+    public List<Pedido> listarPorCliente(String clienteCpf) {
+        if (clienteCpf == null || clienteCpf.isBlank()) {
+            throw new IllegalArgumentException("CPF do cliente é obrigatório");
+        }
+        return pedidoRepository.buscarPorCliente(clienteCpf);
+    }
 }

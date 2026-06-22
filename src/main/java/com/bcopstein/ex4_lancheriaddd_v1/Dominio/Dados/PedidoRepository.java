@@ -24,4 +24,6 @@ public interface PedidoRepository {
     List<Pedido> buscarEntreguesPorClienteEntre(String clienteCpf, LocalDateTime inicio, LocalDateTime fim);
 
     long contarPedidosRecentes(String clienteCpf, LocalDateTime desde);
+
+    List<Pedido> buscarPorCliente(String clienteCpf);
 }
