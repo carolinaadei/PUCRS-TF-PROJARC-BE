@@ -165,4 +165,21 @@ public class PedidoService {
         }
         return pedidoRepository.buscarEntreguesPorClienteEntre(clienteCpf, inicio, fim);
     }
+
+    public Pedido confirmarEntrega(long id) {
+        Pedido pedido = pedidoRepository.recuperaPorId(id)
+                .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado"));
+
+        if (pedido.getStatus() != Pedido.Status.TRANSPORTE) {
+            throw new IllegalArgumentException(
+                    "Pedido não pode ser confirmado como entregue pois está com status: " + pedido.getStatus());
+        }
+
+        pedido.setStatus(Pedido.Status.ENTREGUE);
+        pedidoRepository.salvar(pedido);
+        statusRepository.registrar(new PedidoStatusHistorico(
+                pedido.getId(), Pedido.Status.ENTREGUE, LocalDateTime.now(), "delivery-service"));
+
+        return pedido;
+    }
 }
