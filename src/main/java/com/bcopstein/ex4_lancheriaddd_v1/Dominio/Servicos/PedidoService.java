@@ -182,4 +182,11 @@ public class PedidoService {
 
         return pedido;
     }
+
+    public List<Pedido> listarPorCliente(String clienteCpf) {
+        if (clienteCpf == null || clienteCpf.isBlank()) {
+            throw new IllegalArgumentException("CPF do cliente é obrigatório");
+        }
+        return pedidoRepository.buscarPorCliente(clienteCpf);
+    }
 }
