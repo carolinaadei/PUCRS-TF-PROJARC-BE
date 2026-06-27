@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/clientes").permitAll()
                 .requestMatchers("/interno/**").permitAll()
+                .requestMatchers("/pedidos/*/entregue").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(s ->

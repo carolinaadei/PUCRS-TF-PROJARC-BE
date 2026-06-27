@@ -7,25 +7,14 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.4.3</version>
-        <relativePath/> </parent>
+        <relativePath/>
+    </parent>
 
     <groupId>com.bcopstein</groupId>
-    <artifactId>PUCRS-TF-PROJARC</artifactId>
+    <artifactId>delivery-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-
-    <packaging>pom</packaging>
-
-    <name>ex4-lancheriaddd-v1</name>
-    <description>Demo project for Spring Boot</description>
-
-    <modules>
-        <module>eureka-server</module>
-        <module>api-gateway</module>
-        <module>microservicos/estoque-service</module>
-        <module>microservicos/entrega-service</module>
-    </modules>
-        <module>delivery-service</module>
-    </modules>
+    <name>delivery-service</name>
+    <description>Delivery service - consumes delivery requests from RabbitMQ and simulates delivery</description>
 
     <properties>
         <java.version>21</java.version>
@@ -46,9 +35,16 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
         <dependency>
             <groupId>io.github.cdimascio</groupId>
@@ -56,8 +52,9 @@
             <version>3.0.0</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-amqp</artifactId>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -78,6 +75,18 @@
                             <artifactId>lombok</artifactId>
                         </path>
                     </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>

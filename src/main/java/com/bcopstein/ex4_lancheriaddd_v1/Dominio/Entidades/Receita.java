@@ -14,7 +14,15 @@ public class Receita {
         this.ingredientes = ingredientes;
     }
 
-    public long getId() { return id; }
-    public String getTitulo() { return titulo; }
-    public List<Ingrediente> getIngredientes() { return ingredientes; }
+    public long getId() {
+        return id;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public List<Ingrediente> getIngredientes() {
+        return ingredientes;
+    }
 }

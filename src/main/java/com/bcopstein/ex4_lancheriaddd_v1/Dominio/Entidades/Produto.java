@@ -18,10 +18,21 @@ public class Produto {
         this.preco = preco;
     }
 
-    public long getId() { return id; }
-    public String getDescricao() { return descricao; }
-    public Receita getReceita() { return receita; }
-    public int getPreco() { return preco; }
+    public long getId() {
+        return id;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public Receita getReceita() {
+        return receita;
+    }
+
+    public int getPreco() {
+        return preco;
+    }
 
     public void setPreco(int preco) {
         if (!Produto.precoValido(preco))

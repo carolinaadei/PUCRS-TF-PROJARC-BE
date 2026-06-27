@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.AcompanharPedidoUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.CancelarPedidoUC;
+import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ConfirmarEntregaUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ListarPedidosClienteUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.ListarPedidosEntreguesUC;
 import com.bcopstein.ex4_lancheriaddd_v1.Aplicacao.PagarPedidoUC;
@@ -39,6 +40,7 @@ public class PedidoController {
     private final ListarPedidosClienteUC listarPedidosClienteUC;
     private final PagarPedidoUC pagarPedidoUC;
     private final AcompanharPedidoUC acompanharPedidoUC;
+    private final ConfirmarEntregaUC confirmarEntregaUC;
     private final RetornarPedidosClienteUC retornarPedidosClienteUC;
 
     public PedidoController(CancelarPedidoUC cancelarPedidoUC,
@@ -47,6 +49,7 @@ public class PedidoController {
                             ListarPedidosClienteUC listarPedidosClienteUC,
                             PagarPedidoUC pagarPedidoUC,
                             AcompanharPedidoUC acompanharPedidoUC,
+                            ConfirmarEntregaUC confirmarEntregaUC,
                             RetornarPedidosClienteUC retornarPedidosClienteUC) {
         this.cancelarPedidoUC = cancelarPedidoUC;
         this.submeterPedidoUC = submeterPedidoUC;
@@ -54,6 +57,7 @@ public class PedidoController {
         this.listarPedidosClienteUC = listarPedidosClienteUC;
         this.pagarPedidoUC = pagarPedidoUC;
         this.acompanharPedidoUC = acompanharPedidoUC;
+        this.confirmarEntregaUC = confirmarEntregaUC;
         this.retornarPedidosClienteUC = retornarPedidosClienteUC;
     }
 
@@ -76,6 +80,13 @@ public class PedidoController {
     @CrossOrigin("*")
     public PagarPedidoResponse pagarPedido(@PathVariable(value = "id") long id) {
         return pagarPedidoUC.run(id);
+    }
+
+    @PostMapping("/{id}/entregue")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CrossOrigin("*")
+    public void confirmarEntrega(@PathVariable(value = "id") long id) {
+        confirmarEntregaUC.run(id);
     }
 
     @GetMapping("/entregues")
