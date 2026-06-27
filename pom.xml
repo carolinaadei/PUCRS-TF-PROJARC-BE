@@ -21,6 +21,9 @@
     <modules>
         <module>eureka-server</module>
         <module>api-gateway</module>
+        <module>microservicos/estoque-service</module>
+        <module>microservicos/entrega-service</module>
+    </modules>
         <module>delivery-service</module>
     </modules>
 
@@ -29,7 +32,7 @@
         <spring-cloud.version>2024.0.0</spring-cloud.version>
     </properties>
 
-	<dependencyManagement>
+    <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
