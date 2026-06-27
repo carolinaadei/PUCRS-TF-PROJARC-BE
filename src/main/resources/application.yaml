@@ -39,6 +39,10 @@ server:
 jwt:
   secret: 357638792F423F4428472B4B6250655368566D597133743677397A2443264629
 
+stock:
+  service:
+    url: ${STOCK_SERVICE_URL:http://stock-service:8001}
+
 estoque:
   service:
     url: ${ESTOQUE_SERVICE_URL:http://estoque-service:8001}
