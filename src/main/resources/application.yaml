@@ -16,6 +16,12 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  rabbitmq:
+    host: ${RABBITMQ_HOST:rabbitmq}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
 logging:
   level:
     org:
@@ -23,13 +29,20 @@ logging:
         jdbc: DEBUG
     com:
       bcopstein: DEBUG
+
 application:
   name: ex4-lancheriaddd-v1
+
 server:
   port: 8080
+
 jwt:
   secret: 357638792F423F4428472B4B6250655368566D597133743677397A2443264629
 
 stock:
   service:
     url: ${STOCK_SERVICE_URL:http://stock-service:8001}
+
+estoque:
+  service:
+    url: ${ESTOQUE_SERVICE_URL:http://estoque-service:8001}

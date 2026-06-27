@@ -10,6 +10,11 @@ public class Ingrediente {
         this.descricao = descricao;
     }
 
-    public long getId() { return id; }
-    public String getDescricao() { return descricao; }
+    public long getId() {
+        return id;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
 }
