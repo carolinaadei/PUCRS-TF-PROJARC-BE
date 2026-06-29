@@ -11,12 +11,12 @@ import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 @Service
 public class CalculadoraPreco {
 
-    private final DescontoPolicy politicaCorrente;
+    private final ConfiguracaoDesconto configuracaoDesconto;
     private final IImpostoService impostoService;
 
     @Autowired
-    public CalculadoraPreco(DescontoPolicy politicaCorrente, IImpostoService impostoService) {
-        this.politicaCorrente = politicaCorrente;
+    public CalculadoraPreco(ConfiguracaoDesconto configuracaoDesconto, IImpostoService impostoService) {
+        this.configuracaoDesconto = configuracaoDesconto;
         this.impostoService = impostoService;
     }
 
@@ -29,7 +29,8 @@ public class CalculadoraPreco {
             .mapToDouble(i -> (double) i.getItem().getPreco() * i.getQuantidade())
             .sum();
         double impostos = impostoService.calcular(valor);
-        double desconto = politicaCorrente.seAplica(clienteCpf) ? politicaCorrente.calcular(itens) : 0.0;
+        DescontoPolicy politica = configuracaoDesconto.getPoliticaCorrente();
+        double desconto = politica.seAplica(clienteCpf) ? politica.calcular(itens) : 0.0;
         double valorCobrado = valor + impostos - desconto;
         return new ResultadoCalculo(valor, impostos, desconto, valorCobrado);
     }
