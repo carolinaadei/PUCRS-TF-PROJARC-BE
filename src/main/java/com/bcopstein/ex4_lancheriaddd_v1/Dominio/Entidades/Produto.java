@@ -6,8 +6,13 @@ public class Produto {
     private String descricao;
     private Receita receita;
     private int preco;
+    private boolean disponivel = true;
 
     public Produto(long id, String descricao, Receita receita, int preco) {
+        this(id, descricao, receita, preco, true);
+    }
+
+    public Produto(long id, String descricao, Receita receita, int preco, boolean disponivel) {
         if (!Produto.precoValido(preco))
             throw new IllegalArgumentException("Preco invalido: " + preco);
         if (descricao == null || descricao.length() == 0)
@@ -16,6 +21,7 @@ public class Produto {
         this.descricao = descricao;
         this.receita = receita;
         this.preco = preco;
+        this.disponivel = disponivel;
     }
 
     public long getId() {
@@ -32,6 +38,10 @@ public class Produto {
 
     public int getPreco() {
         return preco;
+    }
+
+    public boolean isDisponivel() {
+        return disponivel;
     }
 
     public void setPreco(int preco) {
