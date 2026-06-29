@@ -45,10 +45,6 @@ eureka:
   instance:
     prefer-ip-address: true
 
-stock:
-  service:
-    url: ${STOCK_SERVICE_URL:http://stock-service:8001}
-
 estoque:
   service:
     url: ${ESTOQUE_SERVICE_URL:http://estoque-service:8001}

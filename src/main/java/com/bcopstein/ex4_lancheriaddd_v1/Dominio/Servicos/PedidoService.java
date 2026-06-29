@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoStatusRepository;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.ProdutosRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
@@ -24,6 +25,7 @@ public class PedidoService {
     private final IPaymentService paymentService;
     private final ICozinhaService cozinhaService;
     private final IStockService stockService;
+    private final ProdutosRepository produtosRepository;
 
     @Autowired
     public PedidoService(PedidoRepository pedidoRepository,
@@ -31,13 +33,15 @@ public class PedidoService {
             CalculadoraPreco calculadoraPreco,
             IPaymentService paymentService,
             ICozinhaService cozinhaService,
-            IStockService stockService) {
+            IStockService stockService,
+            ProdutosRepository produtosRepository) {
         this.pedidoRepository = pedidoRepository;
         this.statusRepository = statusRepository;
         this.calculadoraPreco = calculadoraPreco;
         this.paymentService = paymentService;
         this.cozinhaService = cozinhaService;
         this.stockService = stockService;
+        this.produtosRepository = produtosRepository;
     }
 
     public Pedido submeter(String clienteCpf, String enderecoEntrega, List<ItemPedido> itens) {
@@ -57,9 +61,16 @@ public class PedidoService {
             }
         }
 
-        // Verificação de estoque — pedido inicia como NOVO
+        // Verificação de estoque — pedido inicia como NOVO.
+        // Itens sem ingredientes suficientes são marcados como indisponíveis no
+        // cardápio; a situação só se desfaz quando uma nova verificação for bem-sucedida
+        // (ou seja, quando o estoque for reabastecido).
         List<ItemPedido> itensSemEstoque = itens.stream()
-                .filter(item -> !stockService.verifyItem(item))
+                .filter(item -> {
+                    boolean disponivel = stockService.verifyItem(item);
+                    produtosRepository.atualizarDisponibilidade(item.getItem().getId(), disponivel);
+                    return !disponivel;
+                })
                 .toList();
 
         if (!itensSemEstoque.isEmpty()) {

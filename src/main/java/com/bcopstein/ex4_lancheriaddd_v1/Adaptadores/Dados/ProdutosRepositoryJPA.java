@@ -1,11 +1,9 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.Entidades.ProdutoEntity;
-import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.Entidades.ReceitaEntity;
 import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.JPA.CardapioJpaRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.JPA.ProdutoJpaRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.ProdutosRepository;
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Ingrediente;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Produto;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Receita;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,15 +37,20 @@ public class ProdutosRepositoryJPA implements ProdutosRepository {
             .orElse(List.of());
     }
 
+    @Override
+    @Transactional
+    public void atualizarDisponibilidade(long produtoId, boolean disponivel) {
+        produtoJpa.findById(produtoId).ifPresent(e -> {
+            e.setDisponivel(disponivel);
+            produtoJpa.save(e);
+        });
+    }
+
     private Produto toDomain(ProdutoEntity e) {
         Receita receita = null;
         if (e.getReceitas() != null && !e.getReceitas().isEmpty()) {
-            ReceitaEntity r = e.getReceitas().get(0);
-            List<Ingrediente> ingredientes = r.getIngredientes().stream()
-                .map(i -> new Ingrediente(i.getId(), i.getDescricao()))
-                .toList();
-            receita = new Receita(r.getId(), r.getTitulo(), ingredientes);
+            receita = ReceitaMapper.toDomain(e.getReceitas().get(0));
         }
-        return new Produto(e.getId(), e.getDescricao(), receita, e.getPreco().intValue());
+        return new Produto(e.getId(), e.getDescricao(), receita, e.getPreco().intValue(), e.isDisponivel());
     }
 }
