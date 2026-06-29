@@ -67,16 +67,23 @@ services:
     environment:
       EUREKA_URI: http://name-server:8761/eureka/
       JWT_SECRET: 357638792F423F4428472B4B6250655368566D597133743677397A2443264629
+      DATABASE_URL: jdbc:postgresql://postgres-pizzaria:5432/pizzaria_db
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
     depends_on:
       name-server:
         condition: service_started
+      postgres-pizzaria:
+        condition: service_healthy
 
   # ─── Serviços de domínio ──────────────────────────────────────────────────────
+  # Não expõe porta pro host: todo acesso externo passa pelo gateway, que é
+  # o único ponto que valida o JWT (auth foi extraída do pizzaria, task B1).
 
   pizzaria:
     build: .
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     environment:
       DATABASE_URL: jdbc:postgresql://postgres-pizzaria:5432/pizzaria_db
       DATABASE_USERNAME: postgres
