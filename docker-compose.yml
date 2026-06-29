@@ -83,12 +83,15 @@ services:
       DATABASE_PASSWORD: postgres
       RABBITMQ_HOST: rabbitmq
       ESTOQUE_SERVICE_URL: http://estoque-service:8001
+      EUREKA_URI: http://name-server:8761/eureka/
     depends_on:
       postgres-pizzaria:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
       estoque-service:
+        condition: service_started
+      name-server:
         condition: service_started
 
   estoque-service:

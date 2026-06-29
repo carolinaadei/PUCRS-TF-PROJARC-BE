@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: pizzaria
   datasource:
     url: ${DATABASE_URL}
     driver-class-name: org.postgresql.Driver
@@ -30,14 +32,18 @@ logging:
     com:
       bcopstein: DEBUG
 
-application:
-  name: ex4-lancheriaddd-v1
-
 server:
   port: 8080
 
 jwt:
   secret: 357638792F423F4428472B4B6250655368566D597133743677397A2443264629
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://name-server:8761/eureka/}
+  instance:
+    prefer-ip-address: true
 
 estoque:
   service:
