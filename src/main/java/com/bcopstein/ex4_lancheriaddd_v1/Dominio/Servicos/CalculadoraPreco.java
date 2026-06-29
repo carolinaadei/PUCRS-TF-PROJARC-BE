@@ -5,17 +5,18 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 
 @Service
 public class CalculadoraPreco {
 
-    private final List<DescontoPolicy> policies;
+    private final DescontoPolicy politicaCorrente;
     private final IImpostoService impostoService;
 
     @Autowired
-    public CalculadoraPreco(List<DescontoPolicy> policies, IImpostoService impostoService) {
-        this.policies = policies != null ? policies : List.of();
+    public CalculadoraPreco(DescontoPolicy politicaCorrente, IImpostoService impostoService) {
+        this.politicaCorrente = politicaCorrente;
         this.impostoService = impostoService;
     }
 
@@ -28,10 +29,7 @@ public class CalculadoraPreco {
             .mapToDouble(i -> (double) i.getItem().getPreco() * i.getQuantidade())
             .sum();
         double impostos = impostoService.calcular(valor);
-        double desconto = policies.stream()
-            .filter(p -> p.seAplica(clienteCpf))
-            .mapToDouble(p -> p.calcular(itens))
-            .sum();
+        double desconto = politicaCorrente.seAplica(clienteCpf) ? politicaCorrente.calcular(itens) : 0.0;
         double valorCobrado = valor + impostos - desconto;
         return new ResultadoCalculo(valor, impostos, desconto, valorCobrado);
     }

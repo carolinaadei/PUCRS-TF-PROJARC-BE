@@ -46,3 +46,6 @@ stock:
 estoque:
   service:
     url: ${ESTOQUE_SERVICE_URL:http://estoque-service:8001}
+
+politica:
+  desconto: ${POLITICA_DESCONTO:SemDesconto}
