@@ -46,3 +46,6 @@ stock:
 estoque:
   service:
     url: ${ESTOQUE_SERVICE_URL:http://estoque-service:8001}
+
+tax:
+  strategy: ${TAX_STRATEGY:LC 123/2006}
