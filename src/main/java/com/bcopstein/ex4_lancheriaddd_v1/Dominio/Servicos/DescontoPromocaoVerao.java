@@ -7,9 +7,10 @@ import org.springframework.stereotype.Component;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 
 @Component
-public class SemDesconto implements DescontoPolicy {
+public class DescontoPromocaoVerao implements DescontoPolicy {
 
-    public static final String CODIGO = "SemDesconto";
+    public static final String CODIGO = "PromocaoVerao";
+    private static final double TAXA = 0.15;
 
     @Override
     public String getCodigo() {
@@ -18,6 +19,9 @@ public class SemDesconto implements DescontoPolicy {
 
     @Override
     public double calcular(List<ItemPedido> itens) {
-        return 0.0;
+        double subtotal = itens.stream()
+            .mapToDouble(i -> (double) i.getItem().getPreco() * i.getQuantidade())
+            .sum();
+        return subtotal * TAXA;
     }
 }

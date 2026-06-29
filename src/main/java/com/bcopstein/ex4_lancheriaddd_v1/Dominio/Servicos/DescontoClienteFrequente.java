@@ -21,6 +21,13 @@ public class DescontoClienteFrequente implements DescontoPolicy {
         this.pedidoRepository = pedidoRepository;
     }
 
+    public static final String CODIGO = "ClienteFrequente";
+
+    @Override
+    public String getCodigo() {
+        return CODIGO;
+    }
+
     @Override
     public boolean seAplica(String clienteCpf) {
         if (clienteCpf == null || clienteCpf.isBlank()) return false;
