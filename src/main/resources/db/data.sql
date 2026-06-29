@@ -13,42 +13,34 @@ INSERT INTO ingredientes (id, descricao) VALUES (7, 'Porcao de azeitona') ON CON
 INSERT INTO ingredientes (id, descricao) VALUES (8, 'Porcao de oregano') ON CONFLICT DO NOTHING;
 INSERT INTO ingredientes (id, descricao) VALUES (9, 'Porcao de cebola') ON CONFLICT DO NOTHING;
 
--- Inserção dos itens de estoque
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (1, 30, 1) ON CONFLICT DO NOTHING;
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (2, 30, 2) ON CONFLICT DO NOTHING;
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (3, 30, 3) ON CONFLICT DO NOTHING;
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (4, 30, 4) ON CONFLICT DO NOTHING;
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (5, 30, 5) ON CONFLICT DO NOTHING;
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (6, 30, 6) ON CONFLICT DO NOTHING;
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (7, 30, 7) ON CONFLICT DO NOTHING;
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (8, 30, 8) ON CONFLICT DO NOTHING;
-INSERT INTO itensEstoque (id, quantidade, ingrediente_id) VALUES (9, 30, 9) ON CONFLICT DO NOTHING;
+-- As quantidades reais em estoque (itens_estoque) vivem apenas no banco do
+-- estoque-service; o monólito só mantém o catálogo de ingredientes e receitas.
 
 -- Inserção das receitas
 INSERT INTO receitas (id, titulo) VALUES (1, 'Pizza calabresa') ON CONFLICT DO NOTHING;
 INSERT INTO receitas (id, titulo) VALUES (2, 'Pizza queijo e presunto') ON CONFLICT DO NOTHING;
 INSERT INTO receitas (id, titulo) VALUES (3, 'Pizza margherita') ON CONFLICT DO NOTHING;
 
--- Associação dos ingredientes à receita Pizza calabresa
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (1, 1) ON CONFLICT DO NOTHING;
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (1, 6) ON CONFLICT DO NOTHING;
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (1, 3) ON CONFLICT DO NOTHING;
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (1, 5) ON CONFLICT DO NOTHING;
+-- Associação dos ingredientes à receita Pizza calabresa (com porção necessária por unidade)
+INSERT INTO receita_ingrediente (receita_id, ingrediente_id, quantidade) VALUES (1, 1, 1) ON CONFLICT DO NOTHING;
+INSERT INTO receita_ingrediente (receita_id, ingrediente_id, quantidade) VALUES (1, 6, 1) ON CONFLICT DO NOTHING;
+INSERT INTO receita_ingrediente (receita_id, ingrediente_id, quantidade) VALUES (1, 3, 2) ON CONFLICT DO NOTHING;
+INSERT INTO receita_ingrediente (receita_id, ingrediente_id, quantidade) VALUES (1, 5, 2) ON CONFLICT DO NOTHING;
 -- Associação dos ingredientes à receita Pizza queijo e presunto
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (2, 1) ON CONFLICT DO NOTHING;
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (2, 6) ON CONFLICT DO NOTHING;
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (2, 3) ON CONFLICT DO NOTHING;
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (2, 4) ON CONFLICT DO NOTHING;
+INSERT INTO receita_ingrediente (receita_id, ingrediente_id, quantidade) VALUES (2, 1, 1) ON CONFLICT DO NOTHING;
+INSERT INTO receita_ingrediente (receita_id, ingrediente_id, quantidade) VALUES (2, 6, 1) ON CONFLICT DO NOTHING;
+INSERT INTO receita_ingrediente (receita_id, ingrediente_id, quantidade) VALUES (2, 3, 2) ON CONFLICT DO NOTHING;
+INSERT INTO receita_ingrediente (receita_id, ingrediente_id, quantidade) VALUES (2, 4, 2) ON CONFLICT DO NOTHING;
 -- Associação dos ingredientes à receita Pizza margherita
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (3, 1) ON CONFLICT DO NOTHING;
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (3, 6) ON CONFLICT DO NOTHING;
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (3, 3) ON CONFLICT DO NOTHING;
-INSERT INTO receita_ingrediente (receita_id, ingrediente_id) VALUES (3, 8) ON CONFLICT DO NOTHING;
+INSERT INTO receita_ingrediente (receita_id, ingrediente_id, quantidade) VALUES (3, 1, 1) ON CONFLICT DO NOTHING;
+INSERT INTO receita_ingrediente (receita_id, ingrediente_id, quantidade) VALUES (3, 6, 1) ON CONFLICT DO NOTHING;
+INSERT INTO receita_ingrediente (receita_id, ingrediente_id, quantidade) VALUES (3, 3, 2) ON CONFLICT DO NOTHING;
+INSERT INTO receita_ingrediente (receita_id, ingrediente_id, quantidade) VALUES (3, 8, 1) ON CONFLICT DO NOTHING;
 
 -- Inserção dos produtos
-INSERT INTO produtos (id, descricao, preco, indicacao_chef) VALUES (1, 'Pizza calabresa', 5500, false) ON CONFLICT DO NOTHING;
-INSERT INTO produtos (id, descricao, preco, indicacao_chef) VALUES (2, 'Pizza queijo e presunto', 6000, true) ON CONFLICT DO NOTHING;
-INSERT INTO produtos (id, descricao, preco, indicacao_chef) VALUES (3, 'Pizza margherita', 4000, false) ON CONFLICT DO NOTHING;
+INSERT INTO produtos (id, descricao, preco, indicacao_chef, disponivel) VALUES (1, 'Pizza calabresa', 5500, false, true) ON CONFLICT DO NOTHING;
+INSERT INTO produtos (id, descricao, preco, indicacao_chef, disponivel) VALUES (2, 'Pizza queijo e presunto', 6000, true, true) ON CONFLICT DO NOTHING;
+INSERT INTO produtos (id, descricao, preco, indicacao_chef, disponivel) VALUES (3, 'Pizza margherita', 4000, false, true) ON CONFLICT DO NOTHING;
 
 -- Associação dos produtos com as receitas
 INSERT INTO produto_receita (produto_id, receita_id) VALUES (1, 1) ON CONFLICT DO NOTHING;

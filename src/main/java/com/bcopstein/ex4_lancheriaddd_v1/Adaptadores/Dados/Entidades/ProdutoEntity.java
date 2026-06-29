@@ -23,6 +23,9 @@ public class ProdutoEntity {
     @Column(name = "indicacao_chef", nullable = false)
     private boolean indicacaoChef;
 
+    @Column(nullable = false)
+    private boolean disponivel = true;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "produto_receita",
