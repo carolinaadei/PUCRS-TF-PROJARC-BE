@@ -1,6 +1,7 @@
 -- Inserção dos clientes
-INSERT INTO clientes (cpf, nome, celular, endereco, email) VALUES ('9001', 'Huguinho Pato', '51985744566', 'Rua das Flores, 100', 'huguinho.pato@email.com') ON CONFLICT DO NOTHING;
-INSERT INTO clientes (cpf, nome, celular, endereco, email) VALUES ('9002', 'Luizinho Pato', '5199172079', 'Av. Central, 200', 'zezinho.pato@email.com') ON CONFLICT DO NOTHING;
+-- senha_hash abaixo é só um BCrypt de exemplo, para dados de teste.
+INSERT INTO clientes (cpf, nome, celular, endereco, email, senha_hash) VALUES ('9001', 'Huguinho Pato', '51985744566', 'Rua das Flores, 100', 'huguinho.pato@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy') ON CONFLICT DO NOTHING;
+INSERT INTO clientes (cpf, nome, celular, endereco, email, senha_hash) VALUES ('9002', 'Luizinho Pato', '5199172079', 'Av. Central, 200', 'zezinho.pato@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy') ON CONFLICT DO NOTHING;
 
 -- Inserção dos ingredientes
 INSERT INTO ingredientes (id, descricao) VALUES (1, 'Disco de pizza') ON CONFLICT DO NOTHING;
@@ -97,3 +98,8 @@ INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) 
 INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (3, 'PRONTO',     '2026-05-01 14:10:00', 'cozinha') ON CONFLICT DO NOTHING;
 INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (3, 'TRANSPORTE', '2026-05-01 14:15:00', 'entregador') ON CONFLICT DO NOTHING;
 INSERT INTO pedido_status_historico (pedido_id, status, data_hora, responsavel) VALUES (3, 'ENTREGUE',   '2026-05-01 14:30:00', 'entregador') ON CONFLICT DO NOTHING;
+
+-- Os pedidos/itens acima usam IDs fixos; sincroniza as sequences para que
+-- os próximos INSERTs (pedidos reais) não colidam com esses IDs de exemplo.
+SELECT setval('pedidos_id_seq', (SELECT COALESCE(MAX(id), 1) FROM pedidos));
+SELECT setval('itens_pedido_id_seq', (SELECT COALESCE(MAX(id), 1) FROM itens_pedido));
