@@ -49,3 +49,6 @@ estoque:
 
 tax:
   strategy: ${TAX_STRATEGY:LC 123/2006}
+
+politica:
+  desconto: ${POLITICA_DESCONTO:SemDesconto}
