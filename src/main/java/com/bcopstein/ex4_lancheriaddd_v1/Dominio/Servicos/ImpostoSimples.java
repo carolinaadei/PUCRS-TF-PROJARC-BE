@@ -6,7 +6,7 @@ public class ImpostoSimples implements IImpostoService {
     private static final double TAXA = 0.10;
 
     @Override
-    public String getId() {
+    public String getLei() {
         return ID;
     }
 

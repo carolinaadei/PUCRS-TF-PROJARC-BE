@@ -12,7 +12,7 @@ class ImpostoServiceTest {
     @Test
     @DisplayName("ImpostoSimples tem id LC 123/2006")
     void simplesId() {
-        assertEquals("LC 123/2006", new ImpostoSimples().getId());
+        assertEquals("LC 123/2006", new ImpostoSimples().getLei());
     }
 
     @Test
@@ -24,7 +24,7 @@ class ImpostoServiceTest {
     @Test
     @DisplayName("ImpostoLucroPresumido tem id Lei 9.249/1995")
     void lucroPresumidoId() {
-        assertEquals("Lei 9.249/1995", new ImpostoLucroPresumido().getId());
+        assertEquals("Lei 9.249/1995", new ImpostoLucroPresumido().getLei());
     }
 
     @Test

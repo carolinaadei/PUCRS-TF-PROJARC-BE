@@ -23,7 +23,6 @@
         <module>api-gateway</module>
         <module>microservicos/estoque-service</module>
         <module>microservicos/entrega-service</module>
-    </modules>
         <module>delivery-service</module>
     </modules>
 

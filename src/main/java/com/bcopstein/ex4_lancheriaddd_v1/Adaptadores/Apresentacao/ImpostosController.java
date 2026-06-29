@@ -16,7 +16,7 @@ public class ImpostosController {
     @GetMapping("/calcular")
     public ImpostoResponse calcular(@RequestParam double valorBase) {
         double imposto = impostoService.calcular(valorBase);
-        return new ImpostoResponse(impostoService.getId(), valorBase, imposto, valorBase + imposto);
+        return new ImpostoResponse(impostoService.getLei(), valorBase, imposto, valorBase + imposto);
     }
 
     public record ImpostoResponse(String lei, double valorBase, double imposto, double valorComImposto) {}

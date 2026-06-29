@@ -20,11 +20,11 @@ public class ImpostoConfig {
     @Bean
     public IImpostoService impostoService(@Value("${tax.strategy:" + ImpostoSimples.ID + "}") String strategyId) {
         return strategies.stream()
-            .filter(s -> s.getId().equals(strategyId))
+            .filter(s -> s.getLei().equals(strategyId))
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException(
                 "Estratégia de imposto desconhecida: '" + strategyId + "'. " +
-                "Estratégias disponíveis: " + strategies.stream().map(IImpostoService::getId).toList()
+                "Estratégias disponíveis: " + strategies.stream().map(IImpostoService::getLei).toList()
             ));
     }
 }

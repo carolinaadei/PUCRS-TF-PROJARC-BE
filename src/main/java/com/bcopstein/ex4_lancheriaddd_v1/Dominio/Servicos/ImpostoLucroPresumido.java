@@ -6,7 +6,7 @@ public class ImpostoLucroPresumido implements IImpostoService {
     private static final double TAXA = 0.15;
 
     @Override
-    public String getId() {
+    public String getLei() {
         return ID;
     }
 
