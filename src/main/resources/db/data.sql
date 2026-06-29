@@ -1,6 +1,7 @@
 -- Inserção dos clientes
-INSERT INTO clientes (cpf, nome, celular, endereco, email) VALUES ('9001', 'Huguinho Pato', '51985744566', 'Rua das Flores, 100', 'huguinho.pato@email.com') ON CONFLICT DO NOTHING;
-INSERT INTO clientes (cpf, nome, celular, endereco, email) VALUES ('9002', 'Luizinho Pato', '5199172079', 'Av. Central, 200', 'zezinho.pato@email.com') ON CONFLICT DO NOTHING;
+-- senha_hash abaixo é o BCrypt de "senha123", só para dados de teste.
+INSERT INTO clientes (cpf, nome, celular, endereco, email, senha_hash) VALUES ('9001', 'Huguinho Pato', '51985744566', 'Rua das Flores, 100', 'huguinho.pato@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy') ON CONFLICT DO NOTHING;
+INSERT INTO clientes (cpf, nome, celular, endereco, email, senha_hash) VALUES ('9002', 'Luizinho Pato', '5199172079', 'Av. Central, 200', 'zezinho.pato@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy') ON CONFLICT DO NOTHING;
 
 -- Inserção dos ingredientes
 INSERT INTO ingredientes (id, descricao) VALUES (1, 'Disco de pizza') ON CONFLICT DO NOTHING;

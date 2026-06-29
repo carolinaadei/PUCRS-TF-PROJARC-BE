@@ -115,6 +115,11 @@ public class PedidoRepositoryJPA implements PedidoRepository {
         return pedidoJpa.countPedidosRecentes(clienteCpf, desde);
     }
 
+    @Override
+    public List<Pedido> buscarPorCliente(String clienteCpf) {
+        return pedidoJpa.findByClienteCpf(clienteCpf).stream().map(this::toDomain).toList();
+    }
+
     private Pedido toDomain(PedidoEntity e) {
         Cliente cliente = e.getCliente() != null
                 ? new Cliente(e.getCliente().getId(), e.getCliente().getNome(),
