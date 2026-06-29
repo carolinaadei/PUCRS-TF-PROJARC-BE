@@ -1,0 +1,41 @@
+server:
+  port: 3000
+
+spring:
+  application:
+    name: gateway-auth-filter
+  cloud:
+    discovery:
+      enabled: true
+    gateway:
+      routes:
+        - id: estoque-service
+          uri: lb://ESTOQUE-SERVICE
+          predicates:
+            - Path=/estoque/**
+        - id: entrega-service
+          uri: lb://ENTREGA-SERVICE
+          predicates:
+            - Path=/entrega/**
+        - id: delivery-service
+          uri: lb://DELIVERY-SERVICE
+          predicates:
+            - Path=/delivery/**
+        - id: gateway-service
+          uri: lb://GATEWAY-SERVICE
+          predicates:
+            - Path=/gateway/**
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth/**
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+jwt:
+  secret: my-very-strong-secret-key-that-is-long-enough
