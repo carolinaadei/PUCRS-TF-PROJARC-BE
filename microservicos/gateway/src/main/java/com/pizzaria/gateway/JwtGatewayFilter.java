@@ -49,8 +49,14 @@ public class JwtGatewayFilter implements GlobalFilter, Ordered {
                 .parseClaimsJws(token)
                 .getBody();
 
+            String role = claims.get("role", String.class);
             ServerWebExchange mutated = exchange.mutate()
-                .request(r -> r.header("X-User-Email", claims.getSubject()))
+                .request(r -> {
+                    r.header("X-User-Email", claims.getSubject());
+                    if (role != null) {
+                        r.header("X-User-Roles", role);
+                    }
+                })
                 .build();
 
             return chain.filter(mutated);
