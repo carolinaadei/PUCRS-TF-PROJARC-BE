@@ -1,5 +1,6 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Apresentacao;
 
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.ConfiguracaoDesconto;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.DescontoPolicy;
 import org.springframework.web.bind.annotation.*;
 
@@ -7,21 +8,22 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/descontos")
 public class DescontosController {
 
-    private final DescontoPolicy politicaCorrente;
+    private final ConfiguracaoDesconto configuracaoDesconto;
 
-    public DescontosController(DescontoPolicy politicaCorrente) {
-        this.politicaCorrente = politicaCorrente;
+    public DescontosController(ConfiguracaoDesconto configuracaoDesconto) {
+        this.configuracaoDesconto = configuracaoDesconto;
     }
 
     @GetMapping("/corrente")
     public DescontoPoliticaResponse corrente() {
-        return new DescontoPoliticaResponse(politicaCorrente.getCodigo());
+        return new DescontoPoliticaResponse(configuracaoDesconto.getPoliticaCorrente().getCodigo());
     }
 
     @GetMapping("/verificar")
     public DescontoElegibilidadeResponse verificar(@RequestParam String cpf) {
-        boolean elegivel = politicaCorrente.seAplica(cpf);
-        return new DescontoElegibilidadeResponse(politicaCorrente.getCodigo(), cpf, elegivel);
+        DescontoPolicy politica = configuracaoDesconto.getPoliticaCorrente();
+        boolean elegivel = politica.seAplica(cpf);
+        return new DescontoElegibilidadeResponse(politica.getCodigo(), cpf, elegivel);
     }
 
     public record DescontoPoliticaResponse(String politica) {}

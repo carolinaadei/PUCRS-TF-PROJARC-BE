@@ -36,12 +36,16 @@ class CalculadoraPrecoTest {
         return new Produto(1L, "Produto", receita, precoCentavos);
     }
 
+    private ConfiguracaoDesconto configCom(DescontoPolicy policy) {
+        return new ConfiguracaoDesconto(List.of(policy), policy.getCodigo());
+    }
+
     // ── Sem política de desconto (SemDesconto) ────────────────────────────────
 
     @Test
     @DisplayName("Valor base = soma dos itens")
     void semDesconto_calculaValorBase() {
-        CalculadoraPreco calc = new CalculadoraPreco(new SemDesconto(), impostoSimples);
+        CalculadoraPreco calc = new CalculadoraPreco(configCom(new SemDesconto()), impostoSimples);
         List<ItemPedido> itens = List.of(new ItemPedido(produto(1000), 2));
 
         ResultadoCalculo r = calc.calcular(itens);
@@ -52,7 +56,7 @@ class CalculadoraPrecoTest {
     @Test
     @DisplayName("Imposto = 10% do valor base")
     void semDesconto_calculaImpostos10Porcento() {
-        CalculadoraPreco calc = new CalculadoraPreco(new SemDesconto(), impostoSimples);
+        CalculadoraPreco calc = new CalculadoraPreco(configCom(new SemDesconto()), impostoSimples);
         List<ItemPedido> itens = List.of(new ItemPedido(produto(1000), 1));
 
         ResultadoCalculo r = calc.calcular(itens);
@@ -63,7 +67,7 @@ class CalculadoraPrecoTest {
     @Test
     @DisplayName("Desconto = 0 com SemDesconto")
     void semDesconto_descontoZero() {
-        CalculadoraPreco calc = new CalculadoraPreco(new SemDesconto(), impostoSimples);
+        CalculadoraPreco calc = new CalculadoraPreco(configCom(new SemDesconto()), impostoSimples);
         List<ItemPedido> itens = List.of(new ItemPedido(produto(5000), 1));
 
         ResultadoCalculo r = calc.calcular(itens);
@@ -74,7 +78,7 @@ class CalculadoraPrecoTest {
     @Test
     @DisplayName("valorCobrado = valor + impostos sem desconto")
     void semDesconto_valorCobrado() {
-        CalculadoraPreco calc = new CalculadoraPreco(new SemDesconto(), impostoSimples);
+        CalculadoraPreco calc = new CalculadoraPreco(configCom(new SemDesconto()), impostoSimples);
         List<ItemPedido> itens = List.of(new ItemPedido(produto(1000), 1));
 
         ResultadoCalculo r = calc.calcular(itens);
@@ -85,12 +89,10 @@ class CalculadoraPrecoTest {
     @Test
     @DisplayName("Múltiplos itens somam corretamente")
     void semDesconto_multiplosItens() {
-        CalculadoraPreco calc = new CalculadoraPreco(new SemDesconto(), impostoSimples);
-        Produto p1 = produto(3000);
-        Produto p2 = produto(2000);
+        CalculadoraPreco calc = new CalculadoraPreco(configCom(new SemDesconto()), impostoSimples);
         List<ItemPedido> itens = List.of(
-            new ItemPedido(p1, 2),
-            new ItemPedido(p2, 3)
+            new ItemPedido(produto(3000), 2),
+            new ItemPedido(produto(2000), 3)
         );
 
         ResultadoCalculo r = calc.calcular(itens);
@@ -100,14 +102,14 @@ class CalculadoraPrecoTest {
         assertEquals(13200.0, r.valorCobrado(), DELTA);
     }
 
-    // ── Com DescontoClienteFrequente (7%) — cliente frequente ─────────────────
+    // ── Com DescontoClienteFrequente (7%) ─────────────────────────────────────
 
     @Test
     @DisplayName("Desconto cliente frequente = 7% do valor base quando elegível")
     void clienteFrequente_desconto7Porcento() {
         when(mockRepo.contarPedidosRecentes(anyString(), any())).thenReturn(4L);
         DescontoClienteFrequente policy = new DescontoClienteFrequente(mockRepo);
-        CalculadoraPreco calc = new CalculadoraPreco(policy, impostoSimples);
+        CalculadoraPreco calc = new CalculadoraPreco(configCom(policy), impostoSimples);
         List<ItemPedido> itens = List.of(new ItemPedido(produto(1000), 1));
 
         ResultadoCalculo r = calc.calcular(itens, "cpf-frequente");
@@ -120,7 +122,7 @@ class CalculadoraPrecoTest {
     void clienteFrequente_valorCobradoComDesconto() {
         when(mockRepo.contarPedidosRecentes(anyString(), any())).thenReturn(4L);
         DescontoClienteFrequente policy = new DescontoClienteFrequente(mockRepo);
-        CalculadoraPreco calc = new CalculadoraPreco(policy, impostoSimples);
+        CalculadoraPreco calc = new CalculadoraPreco(configCom(policy), impostoSimples);
         List<ItemPedido> itens = List.of(new ItemPedido(produto(1000), 1));
 
         ResultadoCalculo r = calc.calcular(itens, "cpf-frequente");
@@ -133,7 +135,7 @@ class CalculadoraPrecoTest {
     void clienteNaoFrequente_semDesconto() {
         when(mockRepo.contarPedidosRecentes(anyString(), any())).thenReturn(2L);
         DescontoClienteFrequente policy = new DescontoClienteFrequente(mockRepo);
-        CalculadoraPreco calc = new CalculadoraPreco(policy, impostoSimples);
+        CalculadoraPreco calc = new CalculadoraPreco(configCom(policy), impostoSimples);
         List<ItemPedido> itens = List.of(new ItemPedido(produto(1000), 1));
 
         ResultadoCalculo r = calc.calcular(itens, "cpf-novo");
@@ -147,7 +149,7 @@ class CalculadoraPrecoTest {
     @Test
     @DisplayName("PromocaoVerao aplica 15% a qualquer cliente")
     void promocaoVerao_desconto15Porcento() {
-        CalculadoraPreco calc = new CalculadoraPreco(new DescontoPromocaoVerao(), impostoSimples);
+        CalculadoraPreco calc = new CalculadoraPreco(configCom(new DescontoPromocaoVerao()), impostoSimples);
         List<ItemPedido> itens = List.of(new ItemPedido(produto(1000), 1));
 
         ResultadoCalculo r = calc.calcular(itens, "qualquer-cpf");
@@ -156,25 +158,22 @@ class CalculadoraPrecoTest {
         assertEquals(950.0, r.valorCobrado(), DELTA);
     }
 
-    // ── SemDesconto ───────────────────────────────────────────────────────────
+    // ── Troca de política em runtime ──────────────────────────────────────────
 
     @Test
-    @DisplayName("SemDesconto sempre retorna zero")
-    void semDescontoPolicy_sempreZero() {
-        SemDesconto policy = new SemDesconto();
-        List<ItemPedido> itens = List.of(new ItemPedido(produto(9999), 10));
+    @DisplayName("ConfiguracaoDesconto permite trocar política em runtime")
+    void trocaPoliticaEmRuntime() {
+        SemDesconto semDesconto = new SemDesconto();
+        DescontoPromocaoVerao promo = new DescontoPromocaoVerao();
+        ConfiguracaoDesconto config = new ConfiguracaoDesconto(
+            List.of(semDesconto, promo), SemDesconto.CODIGO);
+        CalculadoraPreco calc = new CalculadoraPreco(config, impostoSimples);
+        List<ItemPedido> itens = List.of(new ItemPedido(produto(1000), 1));
 
-        assertEquals(0.0, policy.calcular(itens), DELTA);
-    }
+        assertEquals(0.0, calc.calcular(itens).desconto(), DELTA);
 
-    // ── getCodigo ─────────────────────────────────────────────────────────────
+        config.trocarPolitica(DescontoPromocaoVerao.CODIGO);
 
-    @Test
-    @DisplayName("Cada política tem o código correto")
-    void politicas_codigosCorretos() {
-        when(mockRepo.contarPedidosRecentes(anyString(), any())).thenReturn(0L);
-        assertEquals("SemDesconto", new SemDesconto().getCodigo());
-        assertEquals("ClienteFrequente", new DescontoClienteFrequente(mockRepo).getCodigo());
-        assertEquals("PromocaoVerao", new DescontoPromocaoVerao().getCodigo());
+        assertEquals(150.0, calc.calcular(itens).desconto(), DELTA);
     }
 }
