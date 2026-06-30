@@ -67,7 +67,7 @@ docker compose down -v   # remove containers e volumes
 
 ## Autenticação
 
-Todas as rotas (exceto `POST /auth/login` e `POST /auth/register`) exigem JWT no header:
+Todas as rotas (exceto `/auth/registrar` e `/auth/login`) exigem JWT no header:
 
 ```
 Authorization: Bearer <token>
@@ -76,7 +76,7 @@ Authorization: Bearer <token>
 ### Cadastrar usuário
 
 ```http
-POST http://localhost:8765/auth/register
+POST http://localhost:8765/auth/registrar
 Content-Type: application/json
 
 {
@@ -101,33 +101,71 @@ Content-Type: application/json
 }
 ```
 
-## Principais Endpoints (via Gateway :8765)
+## Endpoints (via Gateway :8765)
 
-### Cardápio (público via JWT)
+### Cardápio
 
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET | `/cardapios` | Lista todos os cardápios |
-| GET | `/cardapios/{id}` | Carrega cardápio com produtos (UC5) |
+```
+GET  /cardapio/atual          — cardápio corrente com produtos
+GET  /cardapio/lista          — lista todos os cardápios (cabeçalho)
+GET  /cardapio/{id}           — cardápio por ID
+```
 
 ### Pedidos
 
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| POST | `/pedidos` | Submete pedido para aprovação (UC6) |
-| GET | `/pedidos/{id}/status` | Acompanha status do pedido (UC7) |
-| DELETE | `/pedidos/{id}` | Cancela pedido APROVADO (UC8) |
-| POST | `/pedidos/{id}/pagamento` | Paga pedido → inicia cozinha (UC9) |
-| GET | `/pedidos/entregues` | Lista pedidos entregues entre datas (UC10) |
+```
+POST /pedidos                                      — submete pedido (UC6)
+POST /pedidos/{id}/cancelar?canceladoPor=<quem>    — cancela pedido APROVADO (UC8)
+POST /pedidos/{id}/pagar                           — paga pedido → publica na fila (UC9)
+GET  /pedidos/{id}/status?cpf=<cpf>               — acompanha status (UC7)
+GET  /pedidos/entregues?inicio=<ISO>&fim=<ISO>     — pedidos entregues no período (UC10)
+GET  /pedidos/entregues/cliente?cpf=&inicio=&fim=  — pedidos entregues por cliente
+GET  /pedidos/cliente?clienteCpf=<cpf>             — pedidos do cliente
+```
 
 ### Administração
 
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET | `/admin/cardapios` | Lista cardápios (UC1) |
-| PUT | `/admin/cardapios/{id}` | Define cardápio corrente (UC2) |
-| GET | `/admin/descontos` | Lista políticas de desconto (UC3) |
-| PUT | `/admin/descontos/{codigo}` | Define política de desconto corrente (UC4) |
+```
+GET  /admin/cardapio/lista           — lista cardápios (UC1)
+GET  /admin/cardapio/atual           — cardápio corrente
+PUT  /admin/cardapio/atual           — define cardápio corrente (UC2)
+     body: {"idCardapio": 2}
+
+GET  /admin/desconto/politicas       — lista políticas de desconto (UC3)
+PUT  /admin/desconto/politica        — define política corrente (UC4)
+     body: {"codigo": "PromocaoVerao"}
+```
+
+Políticas disponíveis: `SemDesconto`, `ClienteFrequente`, `PromocaoVerao`, `PromocaoDiaDosPais`
+
+### Outros endpoints internos da pizzaria
+
+```
+POST /cozinha/{id}/enviar               — envia pedido para cozinha manualmente
+GET  /descontos/corrente                — política de desconto ativa
+GET  /descontos/verificar?cpf=<cpf>    — verifica elegibilidade do cliente
+POST /pagamentos/{id}                   — processa pagamento
+GET  /pagamentos/{id}/status            — status do pagamento
+POST /entregas/{id}/iniciar             — inicia entrega manualmente
+GET  /entregas/{id}/status              — status da entrega
+GET  /impostos/calcular?valorBase=<n>   — calcula imposto sobre valor
+POST /clientes                          — cadastra cliente
+```
+
+### Interno (service-to-service, exige header `X-Internal-Secret`)
+
+```
+POST /interno/pedidos/{id}/transporte  — marca pedido em transporte
+POST /interno/pedidos/{id}/entregue    — marca pedido como entregue
+```
+
+### Estoque-service (interno, :8001 — não exposto no host)
+
+```
+GET  /estoque                  — lista itens em estoque
+POST /estoque/verificar        — verifica e consome ingredientes em lote
+PUT  /estoque/{ingredienteId}  — atualiza quantidade de um ingrediente
+```
 
 ## Serviços de Domínio
 
@@ -202,7 +240,7 @@ Os testes unitários rodam com H2 em memória (sem necessidade de infraestrutura
 | `POLITICA_DESCONTO` | `SemDesconto` | pizzaria |
 | `INTERNAL_SECRET` | `pizzaria-delivery-secret` | pizzaria, entrega-service |
 | `ESTOQUE_SERVICE_URL` | `http://estoque-service:8001` | pizzaria |
-| `PIZZARIA_URL` | `http://pizzaria:8080` | entrega-service |
+| `PIZZARIA_SERVICE_URL` | `http://pizzaria:8080` | entrega-service |
 
 ## Tecnologias
 
