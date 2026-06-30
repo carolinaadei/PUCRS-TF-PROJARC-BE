@@ -1,7 +1,6 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.Entidades.ProdutoEntity;
-import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.Entidades.ReceitaEntity;
 import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.JPA.CardapioJpaRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.JPA.ProdutoJpaRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.CardapioRepository;
@@ -54,12 +53,8 @@ public class CardapioRepositoryJPA implements CardapioRepository {
     private Produto produtoToDomain(ProdutoEntity e) {
         Receita receita = null;
         if (e.getReceitas() != null && !e.getReceitas().isEmpty()) {
-            ReceitaEntity r = e.getReceitas().get(0);
-            List<Ingrediente> ingredientes = r.getIngredientes().stream()
-                .map(i -> new Ingrediente(i.getId(), i.getDescricao()))
-                .toList();
-            receita = new Receita(r.getId(), r.getTitulo(), ingredientes);
+            receita = ReceitaMapper.toDomain(e.getReceitas().get(0));
         }
-        return new Produto(e.getId(), e.getDescricao(), receita, e.getPreco().intValue());
+        return new Produto(e.getId(), e.getDescricao(), receita, e.getPreco().intValue(), e.isDisponivel());
     }
 }

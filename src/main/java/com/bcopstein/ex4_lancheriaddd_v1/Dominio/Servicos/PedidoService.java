@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoStatusRepository;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.ProdutosRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
@@ -24,6 +25,7 @@ public class PedidoService {
     private final IPaymentService paymentService;
     private final ICozinhaService cozinhaService;
     private final IStockService stockService;
+    private final ProdutosRepository produtosRepository;
 
     @Autowired
     public PedidoService(PedidoRepository pedidoRepository,
@@ -31,13 +33,15 @@ public class PedidoService {
             CalculadoraPreco calculadoraPreco,
             IPaymentService paymentService,
             ICozinhaService cozinhaService,
-            IStockService stockService) {
+            IStockService stockService,
+            ProdutosRepository produtosRepository) {
         this.pedidoRepository = pedidoRepository;
         this.statusRepository = statusRepository;
         this.calculadoraPreco = calculadoraPreco;
         this.paymentService = paymentService;
         this.cozinhaService = cozinhaService;
         this.stockService = stockService;
+        this.produtosRepository = produtosRepository;
     }
 
     public Pedido submeter(String clienteCpf, String enderecoEntrega, List<ItemPedido> itens) {
@@ -57,9 +61,16 @@ public class PedidoService {
             }
         }
 
-        // Verificação de estoque — pedido inicia como NOVO
+        // Verificação de estoque — pedido inicia como NOVO.
+        // Itens sem ingredientes suficientes são marcados como indisponíveis no
+        // cardápio; a situação só se desfaz quando uma nova verificação for bem-sucedida
+        // (ou seja, quando o estoque for reabastecido).
         List<ItemPedido> itensSemEstoque = itens.stream()
-                .filter(item -> !stockService.verifyItem(item))
+                .filter(item -> {
+                    boolean disponivel = stockService.verifyItem(item);
+                    produtosRepository.atualizarDisponibilidade(item.getItem().getId(), disponivel);
+                    return !disponivel;
+                })
                 .toList();
 
         if (!itensSemEstoque.isEmpty()) {
@@ -164,5 +175,29 @@ public class PedidoService {
             throw new IllegalArgumentException("Data de início não pode ser posterior à data de fim");
         }
         return pedidoRepository.buscarEntreguesPorClienteEntre(clienteCpf, inicio, fim);
+    }
+
+    public Pedido confirmarEntrega(long id) {
+        Pedido pedido = pedidoRepository.recuperaPorId(id)
+                .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado"));
+
+        if (pedido.getStatus() != Pedido.Status.TRANSPORTE) {
+            throw new IllegalArgumentException(
+                    "Pedido não pode ser confirmado como entregue pois está com status: " + pedido.getStatus());
+        }
+
+        pedido.setStatus(Pedido.Status.ENTREGUE);
+        pedidoRepository.salvar(pedido);
+        statusRepository.registrar(new PedidoStatusHistorico(
+                pedido.getId(), Pedido.Status.ENTREGUE, LocalDateTime.now(), "delivery-service"));
+
+        return pedido;
+    }
+
+    public List<Pedido> listarPorCliente(String clienteCpf) {
+        if (clienteCpf == null || clienteCpf.isBlank()) {
+            throw new IllegalArgumentException("CPF do cliente é obrigatório");
+        }
+        return pedidoRepository.buscarPorCliente(clienteCpf);
     }
 }
