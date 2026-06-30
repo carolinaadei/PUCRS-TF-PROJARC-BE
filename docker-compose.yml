@@ -139,7 +139,7 @@ services:
       - "8002"
     environment:
       RABBITMQ_HOST: rabbitmq
-      PIZZARIA_URL: http://pizzaria:8080
+      PIZZARIA_SERVICE_URL: http://pizzaria:8080
       EUREKA_URI: http://name-server:8761/eureka/
       INTERNAL_SECRET: pizzaria-delivery-secret
     healthcheck:

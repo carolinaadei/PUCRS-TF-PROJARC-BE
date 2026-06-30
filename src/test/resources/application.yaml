@@ -24,6 +24,9 @@ eureka:
     register-with-eureka: false
     fetch-registry: false
 
+server:
+  port: 8080
+
 estoque:
   service:
     url: http://estoque-service:8001
