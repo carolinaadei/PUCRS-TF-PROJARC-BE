@@ -7,6 +7,13 @@ spring:
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
 
+    listener:
+      simple:
+        prefetch: 1
+        concurrency: 3
+        max-concurrency: 10
+        acknowledge-mode: auto
+
 server:
   port: ${SERVER_PORT:8082}
 
