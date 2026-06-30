@@ -6,6 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,6 +22,9 @@ public class EntregaConsumer {
     @Value("${pizzaria.service.url:http://pizzaria:8080}")
     private String pizzariaUrl;
 
+    @Value("${internal.secret:pizzaria-delivery-secret}")
+    private String internalSecret;
+
     public EntregaConsumer(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
@@ -27,9 +33,19 @@ public class EntregaConsumer {
     public void receberPedido(PedidoEntregaDTO dto) {
         log.info("[ENTREGA] Pedido {} recebido. Endereço: {}", dto.pedidoId(), dto.enderecoEntrega());
 
+        notificarTransporte(dto.pedidoId());
         simularEntrega(dto.pedidoId());
-
         notificarEntregue(dto.pedidoId());
+    }
+
+    private void notificarTransporte(Long pedidoId) {
+        String url = pizzariaUrl + "/interno/pedidos/" + pedidoId + "/transporte";
+        try {
+            restTemplate.exchange(url, HttpMethod.POST, requestComSecret(), Void.class);
+            log.info("[ENTREGA] Pedido {} marcado como TRANSPORTE.", pedidoId);
+        } catch (Exception e) {
+            log.error("[ENTREGA] Falha ao marcar TRANSPORTE para pedido {}: {}", pedidoId, e.getMessage());
+        }
     }
 
     private void simularEntrega(Long pedidoId) {
@@ -45,10 +61,16 @@ public class EntregaConsumer {
     private void notificarEntregue(Long pedidoId) {
         String url = pizzariaUrl + "/interno/pedidos/" + pedidoId + "/entregue";
         try {
-            restTemplate.postForObject(url, null, Void.class);
+            restTemplate.exchange(url, HttpMethod.POST, requestComSecret(), Void.class);
             log.info("[ENTREGA] Monolito notificado: pedido {} marcado como ENTREGUE.", pedidoId);
         } catch (Exception e) {
-            log.error("[ENTREGA] Falha ao notificar monolito para pedido {}: {}", pedidoId, e.getMessage());
+            log.error("[ENTREGA] Falha ao notificar ENTREGUE para pedido {}: {}", pedidoId, e.getMessage());
         }
+    }
+
+    private HttpEntity<Void> requestComSecret() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Internal-Secret", internalSecret);
+        return new HttpEntity<>(headers);
     }
 }

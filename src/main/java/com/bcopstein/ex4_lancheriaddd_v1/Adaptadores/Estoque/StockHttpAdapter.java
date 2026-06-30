@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class StockHttpAdapter implements IStockService {
@@ -31,48 +33,53 @@ public class StockHttpAdapter implements IStockService {
     }
 
     @Override
-    public boolean verifyItem(ItemPedido item) {
-        Receita receita = item.getItem().getReceita();
-        List<PorcaoIngrediente> porcoes = receita == null ? List.of() : receita.getPorcoes();
+    public VerificacaoResultado verificarDisponibilidade(List<ItemPedido> itens) {
+        Map<Long, Integer> agregados = new HashMap<>();
 
-        if (porcoes.isEmpty()) {
-            log.warn("Produto {} sem receita definida — verificação de estoque ignorada", item.getItem().getId());
-            return true;
+        for (ItemPedido item : itens) {
+            Receita receita = item.getItem().getReceita();
+            if (receita == null || receita.getPorcoes() == null) {
+                log.warn("Produto {} sem receita — ingredientes ignorados na verificação", item.getItem().getId());
+                continue;
+            }
+            for (PorcaoIngrediente porcao : receita.getPorcoes()) {
+                Long id = porcao.getIngrediente().getId();
+                int qtd = porcao.getQuantidade() * item.getQuantidade();
+                agregados.merge(id, qtd, Integer::sum);
+            }
         }
 
-        List<IngredienteQuantidadeDTO> ingredientes = porcoes.stream()
-            .map(porcao -> new IngredienteQuantidadeDTO(
-                porcao.getIngrediente().getId(),
-                porcao.getQuantidade() * item.getQuantidade()))
+        if (agregados.isEmpty()) {
+            log.warn("Nenhum ingrediente encontrado nos itens do pedido — verificação de estoque ignorada");
+            return new VerificacaoResultado(true, List.of());
+        }
+
+        List<IngredienteQuantidadeDTO> lista = agregados.entrySet().stream()
+            .map(e -> new IngredienteQuantidadeDTO(e.getKey(), e.getValue()))
             .toList();
 
-        VerificacaoRequestDTO request = new VerificacaoRequestDTO(ingredientes);
+        VerificacaoRequestDTO request = new VerificacaoRequestDTO(lista);
 
         try {
             VerificacaoResponseDTO response = restTemplate.postForObject(
                 estoqueServiceUrl + "/estoque/verificar",
                 request,
-                VerificacaoResponseDTO.class
-            );
+                VerificacaoResponseDTO.class);
 
             if (response == null) {
                 throw new RuntimeException("Resposta nula do serviço de estoque");
             }
 
             if (!response.disponivel()) {
-                log.warn("Estoque insuficiente para produto {}. Ingredientes em falta: {}",
-                    item.getItem().getId(), response.ingredientesIndisponiveis());
+                log.warn("Estoque insuficiente. Ingredientes em falta: {}", response.ingredientesIndisponiveis());
             }
 
-            return response.disponivel();
+            return new VerificacaoResultado(
+                response.disponivel(),
+                response.ingredientesIndisponiveis() != null ? response.ingredientesIndisponiveis() : List.of());
 
         } catch (RestClientException e) {
             throw new RuntimeException("Serviço de estoque indisponível: " + e.getMessage(), e);
         }
-    }
-
-    @Override
-    public void getStock(List<ItemPedido> itens) {
-        // não utilizado no fluxo atual de pedidos
     }
 }

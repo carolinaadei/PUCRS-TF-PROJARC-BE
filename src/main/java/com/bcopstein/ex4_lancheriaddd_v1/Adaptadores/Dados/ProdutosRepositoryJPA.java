@@ -6,7 +6,6 @@ import com.bcopstein.ex4_lancheriaddd_v1.Adaptadores.Dados.JPA.ProdutoJpaReposit
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.ProdutosRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Produto;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Receita;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +17,6 @@ public class ProdutosRepositoryJPA implements ProdutosRepository {
     private final ProdutoJpaRepository produtoJpa;
     private final CardapioJpaRepository cardapioJpa;
 
-    @Autowired
     public ProdutosRepositoryJPA(ProdutoJpaRepository produtoJpa,
                                   CardapioJpaRepository cardapioJpa) {
         this.produtoJpa = produtoJpa;

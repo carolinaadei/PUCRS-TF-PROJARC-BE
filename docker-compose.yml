@@ -93,6 +93,7 @@ services:
       RABBITMQ_HOST: rabbitmq
       ESTOQUE_SERVICE_URL: http://estoque-service:8001
       EUREKA_URI: http://name-server:8761/eureka/
+      INTERNAL_SECRET: pizzaria-delivery-secret
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
       interval: 15s
@@ -140,6 +141,7 @@ services:
       RABBITMQ_HOST: rabbitmq
       PIZZARIA_URL: http://pizzaria:8080
       EUREKA_URI: http://name-server:8761/eureka/
+      INTERNAL_SECRET: pizzaria-delivery-secret
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8002/actuator/health || exit 1"]
       interval: 15s
@@ -154,7 +156,7 @@ services:
       pizzaria:
         condition: service_healthy
     deploy:
-      replicas: 1
+      replicas: 3
 
 volumes:
   postgres_pizzaria_data:

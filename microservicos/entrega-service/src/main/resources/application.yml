@@ -14,6 +14,9 @@ pizzaria:
   service:
     url: ${PIZZARIA_URL:http://pizzaria:8080}
 
+internal:
+  secret: ${INTERNAL_SECRET:pizzaria-delivery-secret}
+
 eureka:
   client:
     service-url:

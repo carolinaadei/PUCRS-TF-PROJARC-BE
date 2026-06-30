@@ -1,11 +1,13 @@
 package com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoStatusRepository;
@@ -15,6 +17,7 @@ import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Pedido;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.PedidoStatusHistorico;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.CalculadoraPreco.ResultadoCalculo;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.IStockService.VerificacaoResultado;
 
 @Service
 public class PedidoService {
@@ -27,7 +30,6 @@ public class PedidoService {
     private final IStockService stockService;
     private final ProdutosRepository produtosRepository;
 
-    @Autowired
     public PedidoService(PedidoRepository pedidoRepository,
             PedidoStatusRepository statusRepository,
             CalculadoraPreco calculadoraPreco,
@@ -44,6 +46,7 @@ public class PedidoService {
         this.produtosRepository = produtosRepository;
     }
 
+    @Transactional
     public Pedido submeter(String clienteCpf, String enderecoEntrega, List<ItemPedido> itens) {
         if (clienteCpf == null || clienteCpf.isBlank()) {
             throw new IllegalArgumentException("CPF do cliente é obrigatório");
@@ -61,26 +64,25 @@ public class PedidoService {
             }
         }
 
-        // Verificação de estoque — pedido inicia como NOVO.
-        // Itens sem ingredientes suficientes são marcados como indisponíveis no
-        // cardápio; a situação só se desfaz quando uma nova verificação for bem-sucedida
-        // (ou seja, quando o estoque for reabastecido).
-        List<ItemPedido> itensSemEstoque = itens.stream()
-                .filter(item -> {
-                    boolean disponivel = stockService.verifyItem(item);
-                    produtosRepository.atualizarDisponibilidade(item.getItem().getId(), disponivel);
-                    return !disponivel;
-                })
-                .toList();
+        VerificacaoResultado resultado = stockService.verificarDisponibilidade(itens);
 
-        if (!itensSemEstoque.isEmpty()) {
+        if (!resultado.disponivel()) {
+            Set<Long> indisponiveis = new HashSet<>(resultado.ingredientesIndisponiveis());
+            itens.stream()
+                .filter(item -> item.getItem().getReceita() != null &&
+                    item.getItem().getReceita().getPorcoes().stream()
+                        .anyMatch(p -> indisponiveis.contains(p.getIngrediente().getId())))
+                .forEach(item -> produtosRepository.atualizarDisponibilidade(item.getItem().getId(), false));
+
             throw new IllegalStateException(
-                    "Estoque insuficiente para os itens: " + itensSemEstoque.stream()
+                    "Estoque insuficiente para os itens: " + itens.stream()
+                            .filter(item -> item.getItem().getReceita() != null &&
+                                item.getItem().getReceita().getPorcoes().stream()
+                                    .anyMatch(p -> indisponiveis.contains(p.getIngrediente().getId())))
                             .map(i -> String.valueOf(i.getItem().getId()))
                             .toList());
         }
 
-        // Estoque suficiente — calcula preço e aprova
         ResultadoCalculo preco = calculadoraPreco.calcular(itens, clienteCpf);
         Cliente cliente = new Cliente(null, null, clienteCpf, null, null, null, null);
 
@@ -106,6 +108,7 @@ public class PedidoService {
         return criado;
     }
 
+    @Transactional
     public Pedido cancelar(long id, String canceladoPor) {
         Pedido pedido = pedidoRepository.recuperaPorId(id)
                 .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado"));
@@ -126,6 +129,7 @@ public class PedidoService {
         return pedido;
     }
 
+    @Transactional
     public Pedido pagar(long id) {
         Pedido pedido = pedidoRepository.recuperaPorId(id)
                 .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado"));
@@ -177,6 +181,7 @@ public class PedidoService {
         return pedidoRepository.buscarEntreguesPorClienteEntre(clienteCpf, inicio, fim);
     }
 
+    @Transactional
     public Pedido confirmarEntrega(long id) {
         Pedido pedido = pedidoRepository.recuperaPorId(id)
                 .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado"));

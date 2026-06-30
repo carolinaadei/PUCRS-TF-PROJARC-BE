@@ -2,7 +2,6 @@ package com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +11,6 @@ public class ConfiguracaoDesconto {
     private DescontoPolicy politicaCorrente;
     private final List<DescontoPolicy> todasPoliticas;
 
-    @Autowired
     public ConfiguracaoDesconto(
             List<DescontoPolicy> todasPoliticas,
             @Value("${politica.desconto:SemDesconto}") String codigoInicial) {

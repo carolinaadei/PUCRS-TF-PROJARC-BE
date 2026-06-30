@@ -51,3 +51,6 @@ tax:
 
 politica:
   desconto: ${POLITICA_DESCONTO:SemDesconto}
+
+internal:
+  secret: ${INTERNAL_SECRET:pizzaria-delivery-secret}

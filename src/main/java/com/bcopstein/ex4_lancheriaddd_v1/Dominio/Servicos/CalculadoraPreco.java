@@ -2,7 +2,6 @@ package com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
@@ -14,7 +13,6 @@ public class CalculadoraPreco {
     private final ConfiguracaoDesconto configuracaoDesconto;
     private final IImpostoService impostoService;
 
-    @Autowired
     public CalculadoraPreco(ConfiguracaoDesconto configuracaoDesconto, IImpostoService impostoService) {
         this.configuracaoDesconto = configuracaoDesconto;
         this.impostoService = impostoService;

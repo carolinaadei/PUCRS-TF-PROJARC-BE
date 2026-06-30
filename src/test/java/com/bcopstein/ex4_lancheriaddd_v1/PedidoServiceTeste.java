@@ -30,31 +30,19 @@ import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.CalculadoraPreco.Resul
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.ICozinhaService;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.IPaymentService;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.IStockService;
+import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.IStockService.VerificacaoResultado;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.PedidoService;
 
 @ExtendWith(MockitoExtension.class)
 class PedidoServiceTest {
 
-    @Mock
-    private PedidoRepository pedidoRepository;
-
-    @Mock
-    private PedidoStatusRepository statusRepository;
-
-    @Mock
-    private CalculadoraPreco calculadoraPreco;
-
-    @Mock
-    private IPaymentService paymentService;
-
-    @Mock
-    private ICozinhaService cozinhaService;
-
-    @Mock
-    private IStockService stockService;
-
-    @Mock
-    private ProdutosRepository produtosRepository;
+    @Mock private PedidoRepository pedidoRepository;
+    @Mock private PedidoStatusRepository statusRepository;
+    @Mock private CalculadoraPreco calculadoraPreco;
+    @Mock private IPaymentService paymentService;
+    @Mock private ICozinhaService cozinhaService;
+    @Mock private IStockService stockService;
+    @Mock private ProdutosRepository produtosRepository;
 
     @InjectMocks
     private PedidoService pedidoService;
@@ -74,12 +62,11 @@ class PedidoServiceTest {
         itensValidos = List.of(new ItemPedido(produtoValido, 2));
     }
 
-    // ── Testes: submeter ──────────────────────────────────────────────────────
-
     @Test
     @DisplayName("Deve criar pedido com status APROVADO após verificação de estoque bem-sucedida")
     void submeter_dadosValidos_criaPedidoAprovado() {
-        when(stockService.verifyItem(any())).thenReturn(true);
+        when(stockService.verificarDisponibilidade(any()))
+                .thenReturn(new VerificacaoResultado(true, List.of()));
         when(calculadoraPreco.calcular(any(), anyString()))
                 .thenReturn(new ResultadoCalculo(11000, 1100, 0, 12100));
         when(pedidoRepository.criar(any(Pedido.class))).thenAnswer(inv -> {
@@ -96,13 +83,14 @@ class PedidoServiceTest {
         assertEquals("Rua das Flores, 100", resultado.getEnderecoEntrega());
         assertEquals("9001", resultado.getCliente().getCpf());
         verify(pedidoRepository).criar(any(Pedido.class));
-        verify(stockService).verifyItem(any());
+        verify(stockService).verificarDisponibilidade(any());
     }
 
     @Test
     @DisplayName("Deve lançar exceção quando item não tem estoque")
     void submeter_semEstoque_lancaExcecao() {
-        when(stockService.verifyItem(any())).thenReturn(false);
+        when(stockService.verificarDisponibilidade(any()))
+                .thenReturn(new VerificacaoResultado(false, List.of(1L)));
 
         IllegalStateException ex = assertThrows(IllegalStateException.class,
                 () -> pedidoService.submeter("9001", "Rua A, 1", itensValidos));
@@ -158,8 +146,6 @@ class PedidoServiceTest {
                 () -> pedidoService.submeter("9001", "Rua A, 1", itensInvalidos));
         assertTrue(ex.getMessage().contains("Quantidade"));
     }
-
-    // ── Testes: cancelar ─────────────────────────────────────────────────────
 
     @Test
     @DisplayName("Deve cancelar pedido com status APROVADO")
