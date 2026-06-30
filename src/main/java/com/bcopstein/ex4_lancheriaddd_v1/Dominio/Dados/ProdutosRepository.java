@@ -7,5 +7,4 @@ import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Produto;
 public interface ProdutosRepository {
     Produto recuperaProdutoPorid(long id);
     List<Produto> recuperaProdutosCardapio(long id);
-    void atualizarDisponibilidade(long produtoId, boolean disponivel);
 }

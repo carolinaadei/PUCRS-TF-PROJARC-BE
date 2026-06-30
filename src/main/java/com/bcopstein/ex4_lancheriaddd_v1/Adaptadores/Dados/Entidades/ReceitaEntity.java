@@ -17,14 +17,11 @@ public class ReceitaEntity {
     @Column(nullable = false)
     private String titulo;
 
-    @OneToMany(mappedBy = "receita", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReceitaIngredienteEntity> porcoes;
-
-    /** Compatibilidade: lista simples de ingredientes, sem a porção necessária. */
-    public List<IngredienteEntity> getIngredientes() {
-        if (porcoes == null) {
-            return List.of();
-        }
-        return porcoes.stream().map(ReceitaIngredienteEntity::getIngrediente).toList();
-    }
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "receita_ingrediente",
+        joinColumns = @JoinColumn(name = "receita_id"),
+        inverseJoinColumns = @JoinColumn(name = "ingrediente_id")
+    )
+    private List<IngredienteEntity> ingredientes;
 }

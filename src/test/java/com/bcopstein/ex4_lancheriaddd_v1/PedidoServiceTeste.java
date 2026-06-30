@@ -18,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.PedidoStatusRepository;
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Dados.ProdutosRepository;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Cliente;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Ingrediente;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.ItemPedido;
@@ -52,9 +51,6 @@ class PedidoServiceTest {
 
     @Mock
     private IStockService stockService;
-
-    @Mock
-    private ProdutosRepository produtosRepository;
 
     @InjectMocks
     private PedidoService pedidoService;

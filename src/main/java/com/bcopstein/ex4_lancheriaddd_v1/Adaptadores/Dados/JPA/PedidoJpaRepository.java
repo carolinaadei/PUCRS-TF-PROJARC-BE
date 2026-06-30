@@ -36,6 +36,4 @@ public interface PedidoJpaRepository extends JpaRepository<PedidoEntity, Long> {
     long countPedidosRecentes(
             @Param("cpf") String cpf,
             @Param("desde") LocalDateTime desde);
-
-    List<PedidoEntity> findByClienteCpf(String cpf);
 }

@@ -8,11 +8,16 @@ create table if not exists clientes(
   senha_hash varchar(255) not null
 );
 
--- Catálogo local de ingredientes (referência usada para montar a receita).
--- As quantidades reais em estoque vivem apenas no banco do estoque-service.
 create table if not exists ingredientes (
   id bigint primary key,
   descricao varchar(255) not null
+);
+
+create table if not exists itensEstoque(
+    id bigint primary key,
+    quantidade int,
+    ingrediente_id bigint,
+    foreign key (ingrediente_id) references ingredientes(id)
 );
 
 -- Tabela Receita
@@ -21,28 +26,27 @@ create table if not exists receitas (
   titulo varchar(255) not null
 );
 
--- Tabela de relacionamento entre Receita e Ingrediente, com a porção
--- (quantidade do item de estoque) necessária por unidade de produto.
+-- Tabela de relacionamento entre Receita e Ingrediente
 create table if not exists receita_ingrediente (
   receita_id bigint not null,
   ingrediente_id bigint not null,
-  quantidade int not null default 1,
   primary key (receita_id, ingrediente_id),
   foreign key (receita_id) references receitas(id),
   foreign key (ingrediente_id) references ingredientes(id)
 );
-alter table receita_ingrediente add column if not exists quantidade int not null default 1;
 
 -- Tabela de Produtos
 create table if not exists produtos (
   id bigint primary key,
   descricao varchar(255) not null,
   preco bigint,
-  indicacao_chef boolean not null default false,
-  disponivel boolean not null default true
+  indicacao_chef boolean not null default false
 );
 alter table produtos add column if not exists indicacao_chef boolean not null default false;
-alter table produtos add column if not exists disponivel boolean not null default true;
+
+alter table pedidos add column if not exists cancelado_por varchar(100);
+alter table pedidos add column if not exists data_hora_cancelamento timestamp;
+alter table pedidos add column if not exists endereco_entrega varchar(255);
 
 -- Tabela de relacionamento entre Produto e Receita
 create table if not exists produto_receita (
