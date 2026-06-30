@@ -108,6 +108,8 @@ services:
         condition: service_healthy
       name-server:
         condition: service_healthy
+    deploy:
+      replicas: 2
 
   estoque-service:
     build: ./microservicos/estoque-service

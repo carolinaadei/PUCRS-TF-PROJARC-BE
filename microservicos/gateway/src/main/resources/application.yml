@@ -17,7 +17,7 @@ spring:
     gateway:
       routes:
         - id: pizzaria-service
-          uri: http://pizzaria:8080
+          uri: lb://pizzaria
           predicates:
             - Path=/**
       default-filters:
