@@ -62,7 +62,7 @@ services:
     ports:
       - "8765:8765"
     environment:
-      EUREKA_SERVER_URL: http://name-server:8761/eureka/
+      EUREKA_URI: http://name-server:8761/eureka/
       JWT_SECRET: 357638792F423F4428472B4B6250655368566D597133743677397A2443264629
       DATABASE_URL: jdbc:postgresql://postgres-pizzaria:5432/pizzaria_db
       DATABASE_USERNAME: postgres
@@ -108,6 +108,8 @@ services:
         condition: service_healthy
       name-server:
         condition: service_healthy
+    deploy:
+      replicas: 2
 
   estoque-service:
     build: ./microservicos/estoque-service
