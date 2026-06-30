@@ -8,8 +8,6 @@ services:
       POSTGRES_DB: pizzaria_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_pizzaria_data:/var/lib/postgresql/data
     healthcheck:
@@ -24,8 +22,6 @@ services:
       POSTGRES_DB: estoque_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    ports:
-      - "5433:5432"
     volumes:
       - postgres_estoque_data:/var/lib/postgresql/data
     healthcheck:
@@ -56,20 +52,27 @@ services:
       - "8761:8761"
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8761/actuator/health || exit 1"]
-      interval: 20s
+      interval: 15s
       timeout: 10s
       retries: 5
+      start_period: 60s
 
   gateway:
     build: ./microservicos/gateway
     ports:
       - "8765:8765"
     environment:
-      EUREKA_SERVER_URL: http://name-server:8761/eureka/
+      EUREKA_URI: http://name-server:8761/eureka/
       JWT_SECRET: 357638792F423F4428472B4B6250655368566D597133743677397A2443264629
       DATABASE_URL: jdbc:postgresql://postgres-pizzaria:5432/pizzaria_db
       DATABASE_USERNAME: postgres
       DATABASE_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8765/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     depends_on:
       name-server:
         condition: service_healthy
@@ -77,8 +80,7 @@ services:
         condition: service_healthy
 
   # ─── Serviços de domínio ──────────────────────────────────────────────────────
-  # Não expõe porta pro host: todo acesso externo passa pelo gateway, que é
-  # o único ponto que valida o JWT (auth foi extraída do pizzaria, task B1).
+  # Sem porta exposta pro host: todo acesso externo passa pelo gateway.
 
   pizzaria:
     build: .
@@ -90,31 +92,67 @@ services:
       DATABASE_PASSWORD: postgres
       RABBITMQ_HOST: rabbitmq
       ESTOQUE_SERVICE_URL: http://estoque-service:8001
-      EUREKA_SERVER_URL: http://name-server:8761/eureka/
+      EUREKA_URI: http://name-server:8761/eureka/
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     depends_on:
       postgres-pizzaria:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      name-server:
+      estoque-service:
         condition: service_healthy
       name-server:
-        condition: service_started
+        condition: service_healthy
+
+  estoque-service:
+    build: ./microservicos/estoque-service
+    expose:
+      - "8001"
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres-estoque:5432/estoque_db
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+      EUREKA_URI: http://name-server:8761/eureka/
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8001/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    depends_on:
+      postgres-estoque:
+        condition: service_healthy
+      name-server:
+        condition: service_healthy
 
   entrega-service:
     build: ./microservicos/entrega-service
     expose:
-      - "8082"
+      - "8002"
     environment:
       RABBITMQ_HOST: rabbitmq
-      PIZZARIA_SERVICE_URL: http://pizzaria:8080
-      EUREKA_SERVER_URL: http://name-server:8761/eureka/
-      SPRING_RABBITMQ_LISTENER_SIMPLE_PREFETCH: 1
+      PIZZARIA_URL: http://pizzaria:8080
+      EUREKA_URI: http://name-server:8761/eureka/
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8002/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     depends_on:
       rabbitmq:
         condition: service_healthy
       name-server:
         condition: service_healthy
+      pizzaria:
+        condition: service_healthy
+    deploy:
+      replicas: 1
 
 volumes:
   postgres_pizzaria_data:
