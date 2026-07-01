@@ -21,17 +21,14 @@ public class CozinhaService implements ICozinhaService {
 
     private final PedidoRepository pedidoRepository;
     private final PedidoStatusRepository statusRepository;
-    private final IEntregaService entregaService;
     private final Queue<Pedido> filaEntrada;
     private Pedido emPreparacao;
     private final ScheduledExecutorService scheduler;
 
     public CozinhaService(PedidoRepository pedidoRepository,
-                          PedidoStatusRepository statusRepository,
-                          IEntregaService entregaService) {
+                          PedidoStatusRepository statusRepository) {
         this.pedidoRepository = pedidoRepository;
         this.statusRepository = statusRepository;
-        this.entregaService = entregaService;
         this.filaEntrada = new LinkedBlockingQueue<>();
         this.emPreparacao = null;
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -65,10 +62,7 @@ public class CozinhaService implements ICozinhaService {
         statusRepository.registrar(new PedidoStatusHistorico(
             emPreparacao.getId(), Pedido.Status.PRONTO, LocalDateTime.now(), "cozinha"));
 
-        Pedido pronto = emPreparacao;
         emPreparacao = null;
-
-        scheduler.schedule(() -> entregaService.iniciarEntrega(pronto), 1, TimeUnit.SECONDS);
 
         if (!filaEntrada.isEmpty()) {
             Pedido prox = filaEntrada.poll();

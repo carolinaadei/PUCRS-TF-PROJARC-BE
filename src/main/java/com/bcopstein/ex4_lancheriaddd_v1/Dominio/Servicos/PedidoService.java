@@ -26,7 +26,6 @@ public class PedidoService {
     private final PedidoStatusRepository statusRepository;
     private final CalculadoraPreco calculadoraPreco;
     private final IPaymentService paymentService;
-    private final ICozinhaService cozinhaService;
     private final IStockService stockService;
     private final ProdutosRepository produtosRepository;
 
@@ -34,14 +33,12 @@ public class PedidoService {
             PedidoStatusRepository statusRepository,
             CalculadoraPreco calculadoraPreco,
             IPaymentService paymentService,
-            ICozinhaService cozinhaService,
             IStockService stockService,
             ProdutosRepository produtosRepository) {
         this.pedidoRepository = pedidoRepository;
         this.statusRepository = statusRepository;
         this.calculadoraPreco = calculadoraPreco;
         this.paymentService = paymentService;
-        this.cozinhaService = cozinhaService;
         this.stockService = stockService;
         this.produtosRepository = produtosRepository;
     }
@@ -152,10 +149,7 @@ public class PedidoService {
         statusRepository.registrar(new PedidoStatusHistorico(
                 pedido.getId(), Pedido.Status.PAGO, LocalDateTime.now(), "cliente"));
 
-        Pedido pedidoSalvo = pedidoRepository.recuperaPorId(pedido.getId()).orElse(pedido);
-        cozinhaService.chegadaDePedido(pedidoSalvo);
-
-        return pedidoSalvo;
+        return pedidoRepository.recuperaPorId(pedido.getId()).orElse(pedido);
     }
 
     public List<Pedido> listarEntreguesEntre(LocalDateTime inicio, LocalDateTime fim) {
