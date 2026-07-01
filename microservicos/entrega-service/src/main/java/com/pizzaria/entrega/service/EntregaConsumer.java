@@ -34,8 +34,6 @@ public class EntregaConsumer {
         log.info("[ENTREGA] Pedido {} recebido. Endereço: {}", dto.pedidoId(), dto.enderecoEntrega());
 
         notificarTransporte(dto.pedidoId());
-        simularEntrega(dto.pedidoId());
-        notificarEntregue(dto.pedidoId());
     }
 
     private void notificarTransporte(Long pedidoId) {
@@ -45,26 +43,6 @@ public class EntregaConsumer {
             log.info("[ENTREGA] Pedido {} marcado como TRANSPORTE.", pedidoId);
         } catch (Exception e) {
             log.error("[ENTREGA] Falha ao marcar TRANSPORTE para pedido {}: {}", pedidoId, e.getMessage());
-        }
-    }
-
-    private void simularEntrega(Long pedidoId) {
-        log.info("[ENTREGA] Iniciando entrega do pedido {}...", pedidoId);
-        try {
-            Thread.sleep(10_000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        log.info("[ENTREGA] Pedido {} entregue ao cliente!", pedidoId);
-    }
-
-    private void notificarEntregue(Long pedidoId) {
-        String url = pizzariaUrl + "/interno/pedidos/" + pedidoId + "/entregue";
-        try {
-            restTemplate.exchange(url, HttpMethod.POST, requestComSecret(), Void.class);
-            log.info("[ENTREGA] Monolito notificado: pedido {} marcado como ENTREGUE.", pedidoId);
-        } catch (Exception e) {
-            log.error("[ENTREGA] Falha ao notificar ENTREGUE para pedido {}: {}", pedidoId, e.getMessage());
         }
     }
 

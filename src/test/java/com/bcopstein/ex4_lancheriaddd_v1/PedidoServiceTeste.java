@@ -27,7 +27,6 @@ import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Produto;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Entidades.Receita;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.CalculadoraPreco;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.CalculadoraPreco.ResultadoCalculo;
-import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.ICozinhaService;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.IPaymentService;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.IStockService;
 import com.bcopstein.ex4_lancheriaddd_v1.Dominio.Servicos.IStockService.VerificacaoResultado;
@@ -40,7 +39,6 @@ class PedidoServiceTest {
     @Mock private PedidoStatusRepository statusRepository;
     @Mock private CalculadoraPreco calculadoraPreco;
     @Mock private IPaymentService paymentService;
-    @Mock private ICozinhaService cozinhaService;
     @Mock private IStockService stockService;
     @Mock private ProdutosRepository produtosRepository;
 

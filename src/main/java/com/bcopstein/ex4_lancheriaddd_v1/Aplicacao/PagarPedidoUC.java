@@ -13,16 +13,13 @@ public class PagarPedidoUC {
     @Autowired
     private PedidoService pedidoService;
 
-    /**
-     * Processa o pagamento de um pedido aprovado e o envia para a cozinha.
-     */
     public PagarPedidoResponse run(long idPedido) {
         Pedido pedido = pedidoService.pagar(idPedido);
 
         return new PagarPedidoResponse(
             pedido.getId(),
             pedido.getStatus().name(),
-            "Pagamento aprovado! Pedido enviado para a cozinha.",
+            "Pagamento aprovado! Envie o pedido para a cozinha em POST /cozinha/{id}/enviar.",
             pedido.getDataHoraPagamento()
         );
     }
